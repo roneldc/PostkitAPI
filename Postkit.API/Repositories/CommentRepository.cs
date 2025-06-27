@@ -26,6 +26,12 @@ namespace Postkit.API.Repositories
                 .ToListAsync();
         }
 
+        public IQueryable<Comment> GetByPostIdAsync()
+        {
+            logger.LogInformation("Fetching comments query for all posts from the database.");
+            return context.Comments.AsQueryable();
+        }
+
         public async Task<Comment?> GetByIdAsync(int id)
         {
             logger.LogInformation("Fetching comment with ID: {id} from the database.", id);

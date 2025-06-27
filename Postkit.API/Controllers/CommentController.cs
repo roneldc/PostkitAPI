@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Postkit.API.DTOs.Comment;
 using Postkit.API.Helpers;
 using Postkit.API.Interfaces;
+using Postkit.API.Queries;
 
 namespace Postkit.API.Controllers
 {
@@ -21,12 +22,12 @@ namespace Postkit.API.Controllers
 
         [HttpGet("posts/{postId:guid}/comments")]
         [AllowAnonymous]
-        public async Task<IActionResult> GetByPostId([FromRoute] Guid postId)
+        public async Task<IActionResult> GetByPostId([FromRoute] Guid postId, [FromQuery] CommentQuery query)
         {
             logger.LogInformation("GET api/comments/{PostId} endpoint called", postId);
-            var comments = await commentService.GetByPostIdAsync(postId);
+            var comments = await commentService.GetByPostIdAsync(postId, query);
 
-            return Ok(ApiResponse<List<CommentDto>>.SuccessResponse(comments ?? new List<CommentDto>(), "Comments retrieved successfully."));
+            return Ok(ApiResponse<PagedResponse<CommentDto>>.SuccessResponse(comments, "Comments retrieved successfully."));
         }
 
         [HttpPost("posts/{postId:guid}/comments")]

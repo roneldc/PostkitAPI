@@ -1,4 +1,4 @@
-# Postkit.API
+# PostkitAPI
 
 Postkit is a clean and extensible ASP.NET Core Web API for user authentication, post and comment management using Identity and JWT. Follows best practices with layered architecture, role-based access, and Swagger docs.
 
@@ -31,6 +31,10 @@ Postkit.API/
 ├── Repositories/
 ├── Services/
 ├── Program.cs
+Postkit.Tests/
+├── Helpers/
+├── Mappers/
+├── Services/
 ```
 
 ## 🚀 Getting Started
@@ -99,11 +103,11 @@ POST /api/auth/login
 
 #### Comments
 
-| Method | Endpoint                 | Description           |
-| ------ | ------------------------ | --------------------- |
-| GET    | `/api/{postId}/comments` | Get comments per post |
-| POST   | `/api/{postId}/comments` | Add comment to post   |
-| DELETE | `/api/comments/{id}`     | Delete own comment    |
+| Method | Endpoint                                                             | Description                                                           |
+| ------ | -------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| GET    | `/api/posts/{postId}/comments?page=1&pageSize=5&sortDescending=true` | Get comments for a post with pagination and sorting by creation date. |
+| POST   | `/api/{postId}/comments`                                             | Add comment to post                                                   |
+| DELETE | `/api/comments/{id}`                                                 | Delete own comment                                                    |
 
 ## Architecture
 
@@ -161,13 +165,7 @@ These are features and improvements that can be added to enhance the quality, re
 ### Functional Enhancements
 
 - [ ] Sorting support for /api/posts (e.g., by date, title).
-- [ ] Comment Query filters (e.g., latest, by user, search keyword).
 - [ ] Implement reply-to-comment feature
-
-### Testing
-
-- [✅] Add unit tests for services, repositories, and controllers.
-- [✅] Setup integration tests for key API flows.
 
 ### Documentation
 

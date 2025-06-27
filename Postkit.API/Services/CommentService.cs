@@ -1,6 +1,9 @@
+using Microsoft.EntityFrameworkCore;
 using Postkit.API.DTOs.Comment;
+using Postkit.API.Helpers;
 using Postkit.API.Interfaces;
 using Postkit.API.Mappers;
+using Postkit.API.Queries;
 
 namespace Postkit.API.Services
 {
@@ -17,7 +20,7 @@ namespace Postkit.API.Services
             this.currentUserService = currentUserService;
         }
 
-        public async Task<List<CommentDto>> GetByPostIdAsync(Guid postId)
+        public async Task<PagedResponse<CommentDto>> GetByPostIdAsync(Guid postId, CommentQuery query)
         {
             logger.LogInformation("Getting comments for post with ID: {postId}", postId);
             var comments = await commentRepository.GetByPostIdAsync(postId);
@@ -27,9 +30,26 @@ namespace Postkit.API.Services
                 return null!;
             }
 
-            comments = comments.OrderBy(c => c.CreatedAt).ToList();
-            var commentDtos = comments.Select(c => c.ToDto()).ToList();
-            return commentDtos;
+            var postsQuery = commentRepository.GetByPostIdAsync();
+            postsQuery = query.ApplyFilters(postsQuery, postId);
+            var totalCount = await postsQuery.CountAsync();
+            var pagedComments = await postsQuery
+                .Include(c => c.User)
+                .ToListAsync();
+
+            var commentDtos = pagedComments.Select(c => c.ToDto()).ToList();
+
+            return new PagedResponse<CommentDto>
+            {
+                Data = commentDtos,
+                Pagination = new PaginationMetadata
+                {
+                    CurrentPage = query.Page,
+                    PageSize = query.PageSize,
+                    TotalItems = totalCount,
+                    TotalPages = (int)Math.Ceiling((double)totalCount / query.PageSize)
+                }
+            };
         }
 
         public async Task<CommentDto> CreateAsync(CreateCommentDto dto)
