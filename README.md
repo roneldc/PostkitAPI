@@ -1,4 +1,4 @@
-# Postkit.API
+# PostkitAPI
 
 Postkit is a clean and extensible ASP.NET Core Web API for user authentication, post and comment management using Identity and JWT. Follows best practices with layered architecture, role-based access, and Swagger docs.
 
@@ -31,6 +31,10 @@ Postkit.API/
 ├── Repositories/
 ├── Services/
 ├── Program.cs
+Postkit.Tests/
+├── Helpers/
+├── Mappers/
+├── Services/
 ```
 
 ## 🚀 Getting Started

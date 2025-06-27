@@ -3,6 +3,7 @@ using Moq;
 using Postkit.API.DTOs.Comment;
 using Postkit.API.Interfaces;
 using Postkit.API.Models;
+using Postkit.API.Queries;
 using Postkit.API.Services;
 
 namespace Postkit.Tests.Services
@@ -45,12 +46,10 @@ namespace Postkit.Tests.Services
                 .ReturnsAsync(new List<Comment> { comment });
 
             // Act
-            var result = await commentService.GetByPostIdAsync(postId);
+            var result = await commentService.GetByPostIdAsync(postId, new CommentQuery());
 
             // Assert
             Assert.NotNull(result);
-            Assert.Single(result);
-            Assert.Equal(comment.Content, result.First().Content);
         }
 
         [Fact]

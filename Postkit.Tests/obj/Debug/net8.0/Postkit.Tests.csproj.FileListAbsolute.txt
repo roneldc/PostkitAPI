@@ -164,3 +164,4 @@ C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\runtimes\
 C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Windows.Extensions.dll
 C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\Postkit.API.dll
 C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\Postkit.API.pdb
+c:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\obj\Debug\net8.0\Postkit.Tests.sourcelink.json
