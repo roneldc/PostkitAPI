@@ -68,6 +68,20 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddLogging();
 
+var allowedOrigins = builder.Configuration
+    .GetSection("Cors:AllowedOrigins")
+    .Get<string[]>();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("ConfiguredCors", policy =>
+    {
+        policy.WithOrigins(allowedOrigins ?? Array.Empty<string>())
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
@@ -88,6 +102,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseExceptionHandler(_ => { });
 app.UseHttpsRedirection();
+
+app.UseCors("ConfiguredCors");
 
 app.UseAuthentication();
 app.UseAuthorization();
