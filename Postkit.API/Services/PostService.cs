@@ -23,18 +23,63 @@ namespace Postkit.API.Services
         public async Task<PagedResponse<PostDto>> GetAllPostsAsync(PostQuery query)
         {
             logger.LogInformation("Getting all posts with filters and pagination: {Query}", query);
+
             var postsQuery = postRepository.GetPostsQuery();
+
             postsQuery = query.ApplyFilters(postsQuery);
+
             var totalCount = await postsQuery.CountAsync();
-            var posts = await postsQuery
+
+            // Apply pagination
+            var pagedPosts = await postsQuery
                 .Include(p => p.User)
                 .Include(p => p.Comments)
+                .Include(p => p.Reactions)
+                .OrderByDescending(p => p.CreatedAt)
+                .Skip((query.Page - 1) * query.PageSize)
+                .Take(query.PageSize)
                 .ToListAsync();
-            var postDtos = posts.Select(p => p.ToDTO()).ToList();
+
+            var postDtos = pagedPosts.Select(p => p.ToDTO()).ToList();
 
             return new PagedResponse<PostDto>
             {
                 Data = postDtos,
+                Pagination = new PaginationMetadata
+                {
+                    CurrentPage = query.Page,
+                    PageSize = query.PageSize,
+                    TotalItems = totalCount,
+                    TotalPages = (int)Math.Ceiling((double)totalCount / query.PageSize)
+                }
+            };
+        }
+
+        public async Task<PagedResponse<PostDetailsDto>> GetAllPostDetailsAsync(PostQuery query)
+        {
+            logger.LogInformation("Getting all post details with filters and pagination: {Query}", query);
+            var postsQuery = postRepository.GetPostsQuery();
+
+            postsQuery = query.ApplyFilters(postsQuery);
+
+            var totalCount = await postsQuery.CountAsync();
+
+            // Apply pagination
+            var pagedPosts = await postsQuery
+                .Include(p => p.Comments)
+                    .ThenInclude(c => c.User)
+                .Include(p => p.User)
+                .Include(p => p.Reactions)
+                .OrderByDescending(p => p.CreatedAt)
+                .Skip((query.Page - 1) * query.PageSize)
+                .Take(query.PageSize)
+                .ToListAsync();
+
+            var postDetailsDto = pagedPosts.Select(p => p.ToPostDetailsDTO()).ToList();
+
+            return new PagedResponse<PostDetailsDto>
+            {
+                Data = postDetailsDto,
                 Pagination = new PaginationMetadata
                 {
                     CurrentPage = query.Page,
@@ -66,6 +111,7 @@ namespace Postkit.API.Services
 
             var post = dto.ToModel();
             post.UserId = userId;
+            post.AppId = currentUserService.AppId;
             post.CreatedAt = DateTime.UtcNow;
 
             var addedPost = await postRepository.AddAsync(post);
@@ -89,6 +135,11 @@ namespace Postkit.API.Services
             {
                 logger.LogWarning("User with ID: {UserId} is not authorized to update post with ID: {Id}", userId, id);
                 throw new UnauthorizedAccessException();
+            }
+
+            if (currentUserService?.AppId == null || existingPost.AppId != currentUserService?.AppId)
+            {
+                logger.LogWarning("Access denied - AppId mismatch. CurrentUserService.AppId: {UserAppId}, Post.AppId: {PostAppId}.", currentUserService?.AppId, existingPost.AppId);
             }
 
             existingPost.Title = dto.Title;
@@ -116,6 +167,11 @@ namespace Postkit.API.Services
             {
                 logger.LogWarning("User with ID: {UserId} is not authorized to update post with ID: {Id}", userId, id);
                 throw new UnauthorizedAccessException();
+            }
+
+            if (currentUserService?.AppId == null || post.AppId != currentUserService?.AppId)
+            {
+                logger.LogWarning("Access denied - AppId mismatch. CurrentUserService.AppId: {UserAppId}, Post.AppId: {PostAppId}.", currentUserService?.AppId, post.AppId);
             }
 
             await postRepository.DeleteAsync(post);

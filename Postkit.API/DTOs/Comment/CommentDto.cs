@@ -6,5 +6,6 @@ namespace Postkit.API.DTOs.Comment
         public string Content { get; set; } = string.Empty;
         public string AuthorUserName { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; }
+        public Guid PostId { get; set; }
     }
 }

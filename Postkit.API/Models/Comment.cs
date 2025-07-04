@@ -9,5 +9,7 @@ namespace Postkit.API.Models
         public Post? Post { get; set; }
         public string UserId { get; set; } = string.Empty;
         public ApplicationUser? User { get; set; }
+        public Guid AppId { get; set; }
+        public App? App { get; set; }
     }
 }

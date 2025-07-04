@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Postkit.API.Data;
+using Postkit.API.Helpers;
 using Postkit.API.Interfaces;
 using Postkit.API.Models;
 
@@ -9,11 +10,13 @@ namespace Postkit.API.Repositories
     {
         private readonly PostkitDbContext context;
         private readonly ILogger<CommentRepository> logger;
+        private readonly ICurrentUserService currentUserService;
 
-        public CommentRepository(PostkitDbContext context, ILogger<CommentRepository> logger)
+        public CommentRepository(PostkitDbContext context, ILogger<CommentRepository> logger, ICurrentUserService currentUserService)
         {
             this.context = context;
             this.logger = logger;
+            this.currentUserService = currentUserService;
         }
 
         public async Task<List<Comment>> GetByPostIdAsync(Guid postId)
@@ -46,6 +49,7 @@ namespace Postkit.API.Repositories
             context.Comments.Add(comment);
             await context.SaveChangesAsync();
             var addedComment = await context.Comments
+                .Include(c => c.Post)
                 .Include(c => c.User)
                 .FirstOrDefaultAsync(c => c.Id == comment.Id);
 

@@ -20,12 +20,12 @@ namespace Postkit.API.Controllers
             this.logger = logger;
         }
 
-        [HttpGet("posts/{postId:guid}/comments")]
+        [HttpGet("comments")]
         [AllowAnonymous]
-        public async Task<IActionResult> GetByPostId([FromRoute] Guid postId, [FromQuery] CommentQuery query)
+        public async Task<IActionResult> GetByPostId([FromQuery] CommentQuery query)
         {
-            logger.LogInformation("GET api/comments/{PostId} endpoint called", postId);
-            var comments = await commentService.GetByPostIdAsync(postId, query);
+            logger.LogInformation("GET api/comments/{PostId} endpoint called", query.PostId);
+            var comments = await commentService.GetByPostIdAsync(query);
 
             return Ok(ApiResponse<PagedResponse<CommentDto>>.SuccessResponse(comments, "Comments retrieved successfully."));
         }

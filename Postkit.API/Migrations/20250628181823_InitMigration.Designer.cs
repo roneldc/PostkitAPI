@@ -12,7 +12,7 @@ using Postkit.API.Data;
 namespace Postkit.API.Migrations
 {
     [DbContext(typeof(PostkitDbContext))]
-    [Migration("20250627045544_InitMigration")]
+    [Migration("20250628181823_InitMigration")]
     partial class InitMigration
     {
         /// <inheritdoc />
@@ -158,6 +158,21 @@ namespace Postkit.API.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("Postkit.API.Models.App", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Apps");
+                });
+
             modelBuilder.Entity("Postkit.API.Models.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
@@ -165,6 +180,9 @@ namespace Postkit.API.Migrations
 
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
+
+                    b.Property<Guid>("AppId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -212,6 +230,8 @@ namespace Postkit.API.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AppId");
+
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
 
@@ -231,6 +251,9 @@ namespace Postkit.API.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<Guid>("AppId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("Content")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -247,6 +270,8 @@ namespace Postkit.API.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AppId");
+
                     b.HasIndex("PostId");
 
                     b.HasIndex("UserId");
@@ -258,6 +283,9 @@ namespace Postkit.API.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AppId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Content")
@@ -280,9 +308,47 @@ namespace Postkit.API.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AppId");
+
                     b.HasIndex("UserId");
 
                     b.ToTable("Posts");
+                });
+
+            modelBuilder.Entity("Postkit.API.Models.Reaction", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AppId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("PostId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("TargetType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AppId");
+
+                    b.HasIndex("PostId");
+
+                    b.ToTable("Reactions");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -336,19 +402,38 @@ namespace Postkit.API.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Postkit.API.Models.ApplicationUser", b =>
+                {
+                    b.HasOne("Postkit.API.Models.App", "App")
+                        .WithMany("Users")
+                        .HasForeignKey("AppId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("App");
+                });
+
             modelBuilder.Entity("Postkit.API.Models.Comment", b =>
                 {
+                    b.HasOne("Postkit.API.Models.App", "App")
+                        .WithMany()
+                        .HasForeignKey("AppId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Postkit.API.Models.Post", "Post")
                         .WithMany("Comments")
                         .HasForeignKey("PostId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("Postkit.API.Models.ApplicationUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
+
+                    b.Navigation("App");
 
                     b.Navigation("Post");
 
@@ -357,18 +442,52 @@ namespace Postkit.API.Migrations
 
             modelBuilder.Entity("Postkit.API.Models.Post", b =>
                 {
-                    b.HasOne("Postkit.API.Models.ApplicationUser", "User")
+                    b.HasOne("Postkit.API.Models.App", "App")
                         .WithMany()
-                        .HasForeignKey("UserId")
+                        .HasForeignKey("AppId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Postkit.API.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("App");
+
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Postkit.API.Models.Reaction", b =>
+                {
+                    b.HasOne("Postkit.API.Models.App", "App")
+                        .WithMany()
+                        .HasForeignKey("AppId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Postkit.API.Models.Post", "Post")
+                        .WithMany("Reactions")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("App");
+
+                    b.Navigation("Post");
+                });
+
+            modelBuilder.Entity("Postkit.API.Models.App", b =>
+                {
+                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("Postkit.API.Models.Post", b =>
                 {
                     b.Navigation("Comments");
+
+                    b.Navigation("Reactions");
                 });
 #pragma warning restore 612, 618
         }

@@ -6,7 +6,7 @@ namespace Postkit.API.Interfaces
 {
     public interface ICommentService
     {
-        Task<PagedResponse<CommentDto>> GetByPostIdAsync(Guid postId, CommentQuery query);
+        Task<PagedResponse<CommentDto>> GetByPostIdAsync(CommentQuery query);
         Task<CommentDto> CreateAsync(CreateCommentDto dto);
         Task<bool> DeleteAsync(int id);
     }

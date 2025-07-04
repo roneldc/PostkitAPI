@@ -1,6 +1,13 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Postkit.API.DTOs.Comment;
+using Postkit.API.Models;
+
 namespace Postkit.API.DTOs.Post
 {
-    public class PostDto
+    public class PostDetailsDto
     {
         public Guid Id { get; set; }
         public string Title { get; set; } = string.Empty;
@@ -10,5 +17,6 @@ namespace Postkit.API.DTOs.Post
         public int ReactionsCount { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
+        public List<CommentDto>? Comments { get; set; }
     }
 }

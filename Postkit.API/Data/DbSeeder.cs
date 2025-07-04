@@ -7,22 +7,26 @@ namespace Postkit.API.Data
 {
     public static class DataSeeder
     {
-        private const string AdminUsername = "admin";
+        private const string AdminUsername = "ParlayPete247";
         private const string AdminEmail = "admin@email.com";
         private const string AdminPassword = "Admin@123";
+        private const string SampleAppId = "5B7A6A28-53AB-4267-A2CA-9F719E4BE68F";
 
-        private const string UserUsername = "user";
+        private const string UserUsername = "LuckyTom88";
         private const string UserEmail = "user@email.com";
         private const string UserPassword = "User@123";
 
         public static async Task SeedAsync(PostkitDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
         {
+            await SeedApplicationsAsync(context);
+
             await context.Database.MigrateAsync();
 
             var adminUser = await EnsureUserExistsAsync(userManager, roleManager, AdminEmail, AdminUsername, AdminPassword, UserRoles.Admin);
             var regularUser = await EnsureUserExistsAsync(userManager, roleManager, UserEmail, UserUsername, UserPassword, UserRoles.User);
 
             await SeedPostsAndCommentsAsync(context, adminUser, regularUser);
+            await SeedReactionsAsync(context, adminUser, regularUser);
         }
 
         private static async Task<ApplicationUser> EnsureUserExistsAsync(
@@ -47,7 +51,8 @@ namespace Postkit.API.Data
                 {
                     UserName = username,
                     Email = email,
-                    EmailConfirmed = true
+                    EmailConfirmed = true,
+                    AppId = Guid.Parse(SampleAppId)
                 };
 
                 var result = await userManager.CreateAsync(user, password);
@@ -74,61 +79,123 @@ namespace Postkit.API.Data
 
             var posts = new List<Post>();
 
-            for (int i = 1; i <= 5; i++)
+            var post1Id = Guid.NewGuid();
+            var post1 = new Post
             {
-                var postId = Guid.NewGuid();
-                var post = new Post
+                Id = post1Id,
+                Title = "Betting Tip for the Upcoming Soccer Match",
+                Content = "In tomorrow's soccer match between Team A and Team B, I highly recommend placing your bets on Team A. They’ve been dominating lately with strong offensive strategies, while Team B has had a weak defense.",
+                CreatedAt = DateTime.UtcNow,
+                UserId = adminUser.Id,
+                AppId = Guid.Parse(SampleAppId),
+                Comments = new List<Comment>
                 {
-                    Id = postId,
-                    Title = $"Admin Post {i}",
-                    Content = $"This is content of admin post {i}.",
-                    CreatedAt = DateTime.UtcNow,
-                    UserId = adminUser.Id,
-                    Comments = new List<Comment>()
-                };
-
-                for (int j = 1; j <= 2; j++)
-                {
-                    post.Comments.Add(new Comment
+                    new Comment
                     {
-                        Content = $"User comment {j} on admin post {i}.",
+                        Content = "I agree with this bet! Team A has been on fire lately.",
                         CreatedAt = DateTime.UtcNow,
                         UserId = regularUser.Id,
-                        PostId = postId
-                    });
-                }
-
-                posts.Add(post);
-            }
-
-            for (int i = 1; i <= 5; i++)
-            {
-                var postId = Guid.NewGuid();
-                var post = new Post
-                {
-                    Id = postId,
-                    Title = $"User Post {i}",
-                    Content = $"This is content of user post {i}.",
-                    CreatedAt = DateTime.UtcNow,
-                    UserId = regularUser.Id,
-                    Comments = new List<Comment>()
-                };
-
-                for (int j = 1; j <= 2; j++)
-                {
-                    post.Comments.Add(new Comment
+                        PostId = post1Id,
+                        AppId = Guid.Parse(SampleAppId),
+                    },
+                    new Comment
                     {
-                        Content = $"Admin comment {j} on user post {i}.",
+                        Content = "But don’t forget about Team B's goalkeeper – he could be a game-changer if he steps up.",
                         CreatedAt = DateTime.UtcNow,
                         UserId = adminUser.Id,
-                        PostId = postId
-                    });
+                        PostId = post1Id,
+                        AppId = Guid.Parse(SampleAppId),
+                    }
                 }
+            };
+            posts.Add(post1);
 
-                posts.Add(post);
+            // Post by Regular User (second user)
+            var post2Id = Guid.NewGuid();
+            var post2 = new Post
+            {
+                Id = post2Id,
+                Title = "My Latest Betting Experience: Lost Big!",
+                Content = "I placed a $200 bet on a basketball game last week, but unfortunately, my team lost. Here are the key lessons learned: 1) Always check player injuries before betting. 2) Never bet emotionally.",
+                CreatedAt = DateTime.UtcNow,
+                UserId = regularUser.Id,
+                AppId = Guid.Parse(SampleAppId),
+                Comments = new List<Comment>
+            {
+                new Comment
+                {
+                    Content = "Sorry to hear about the loss! Betting can be risky, but it’s all part of the game.",
+                    CreatedAt = DateTime.UtcNow,
+                    UserId = adminUser.Id,
+                    PostId = post2Id,
+                    AppId = Guid.Parse(SampleAppId)
+                }
             }
+            };
+            posts.Add(post2);
 
             context.Posts.AddRange(posts);
+            await context.SaveChangesAsync();
+        }
+
+        private static async Task SeedReactionsAsync(PostkitDbContext context, ApplicationUser? adminUser, ApplicationUser? user)
+        {
+            if (context.Reactions.Any())
+                return;
+
+            var examplePost = await context.Posts.FirstOrDefaultAsync();
+
+            if (examplePost == null)
+                return;
+
+            var reactions = new List<Reaction>
+            {
+                new Reaction
+                {
+                    Id = Guid.NewGuid(),
+                    TargetType = "Post",
+                    PostId = examplePost.Id,
+                    UserId = adminUser!.Id.ToString(),
+                    Type = "Like",
+                    CreatedAt = DateTime.UtcNow,
+                    AppId = Guid.Parse(SampleAppId),
+                },
+                new Reaction
+                {
+                    Id = Guid.NewGuid(),
+                    TargetType = "Post",
+                    PostId = examplePost.Id,
+                    UserId = user!.Id.ToString(),
+                    Type = "Love",
+                    CreatedAt = DateTime.UtcNow,
+                    AppId = Guid.Parse(SampleAppId),
+                }
+            };
+
+            context.Reactions.AddRange(reactions);
+            await context.SaveChangesAsync();
+        }
+
+        private static async Task SeedApplicationsAsync(PostkitDbContext context)
+        {
+            if (context.Apps.Any())
+                return;
+
+            var apps = new List<App>
+            {
+                new App
+                {
+                    Id = Guid.Parse(SampleAppId),
+                    Name = "BetSync"
+                },
+                new App
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "AnotherApp"
+                }
+            };
+
+            context.Apps.AddRange(apps);
             await context.SaveChangesAsync();
         }
     }

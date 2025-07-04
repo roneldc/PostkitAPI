@@ -14,5 +14,10 @@ namespace Postkit.API.Services
 
         public string? UserId =>
                httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        public Guid AppId =>
+         Guid.TryParse(httpContextAccessor.HttpContext?.User?.FindFirstValue("AppId"), out var appId)
+             ? appId
+             : Guid.Empty;
     }
 }

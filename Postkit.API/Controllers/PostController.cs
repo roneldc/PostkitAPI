@@ -24,10 +24,20 @@ namespace Postkit.API.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> GetAllPosts([FromQuery] PostQuery query)
         {
-            logger.LogInformation("GET api/posts endpoint called with query: {Query}", query);
-            var posts = await postService.GetAllPostsAsync(query);
+            logger.LogInformation("GET api/posts called with query: {Query}", query);
 
+            var posts = await postService.GetAllPostsAsync(query);
             return Ok(ApiResponse<PagedResponse<PostDto>>.SuccessResponse(posts, "Posts retrieved successfully."));
+        }
+
+        [HttpGet("details")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetPostDetails([FromQuery] PostQuery query)
+        {
+            logger.LogInformation("GET api/posts called with query: {Query}", query);
+
+            var posts = await postService.GetAllPostDetailsAsync(query);
+            return Ok(ApiResponse<PagedResponse<PostDetailsDto>>.SuccessResponse(posts, "Posts retrieved successfully."));
         }
 
         [HttpGet("{id}")]

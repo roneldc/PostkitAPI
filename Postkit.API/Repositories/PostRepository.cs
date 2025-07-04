@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Postkit.API.Data;
+using Postkit.API.Helpers;
 using Postkit.API.Interfaces;
 using Postkit.API.Models;
 
@@ -28,6 +29,7 @@ namespace Postkit.API.Repositories
             return await context.Posts
                 .Include(p => p.User)
                 .Include(p => p.Comments)
+                .Include(p => p.Reactions)
                 .FirstOrDefaultAsync(p => p.Id == id);
         }
 

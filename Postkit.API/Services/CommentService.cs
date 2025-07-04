@@ -20,21 +20,18 @@ namespace Postkit.API.Services
             this.currentUserService = currentUserService;
         }
 
-        public async Task<PagedResponse<CommentDto>> GetByPostIdAsync(Guid postId, CommentQuery query)
+        public async Task<PagedResponse<CommentDto>> GetByPostIdAsync(CommentQuery query)
         {
-            logger.LogInformation("Getting comments for post with ID: {postId}", postId);
-            var comments = await commentRepository.GetByPostIdAsync(postId);
-            if (comments == null || !comments.Any())
-            {
-                logger.LogWarning("No comments found for post with ID: {postId}", postId);
-                return null!;
-            }
+            logger.LogInformation("Getting comments for post with ID: {postId}", query.PostId);
 
             var postsQuery = commentRepository.GetByPostIdAsync();
-            postsQuery = query.ApplyFilters(postsQuery, postId);
+            postsQuery = query.ApplyFilters(postsQuery);
             var totalCount = await postsQuery.CountAsync();
             var pagedComments = await postsQuery
                 .Include(c => c.User)
+                .OrderBy(c => c.CreatedAt)
+                .Skip((query.Page - 1) * query.PageSize)
+                .Take(query.PageSize)
                 .ToListAsync();
 
             var commentDtos = pagedComments.Select(c => c.ToDto()).ToList();
@@ -59,6 +56,8 @@ namespace Postkit.API.Services
             var userId = currentUserService.UserId ?? throw new UnauthorizedAccessException();
 
             var comment = dto.ToModel(userId);
+            comment.UserId = userId;
+            comment.AppId = currentUserService.AppId;
             var addedComment = await commentRepository.AddAsync(comment);
             return addedComment.ToDto();
         }

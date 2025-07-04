@@ -14,7 +14,8 @@ namespace Postkit.API.Mappers
                 Id = comment.Id,
                 Content = comment.Content,
                 AuthorUserName = comment.User?.UserName ?? string.Empty,
-                CreatedAt = comment.CreatedAt
+                CreatedAt = comment.CreatedAt,
+                PostId = comment.PostId
             };
         }
 
