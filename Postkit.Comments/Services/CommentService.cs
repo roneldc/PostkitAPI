@@ -1,0 +1,103 @@
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Postkit.Comments.DTOs;
+using Postkit.Comments.Interfaces;
+using Postkit.Comments.Mappers;
+using Postkit.Comments.Queries;
+using Postkit.Identity.Interfaces;
+using Postkit.Notifications.Interfaces;
+using Postkit.Shared.Helpers;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Postkit.Comments.Services
+{
+    public class CommentService : ICommentService
+    {
+        private readonly ICommentRepository commentRepository;
+        private readonly ILogger<CommentService> logger;
+        private readonly ICurrentUserService currentUserService;
+        private readonly INotificationService notificationService;
+
+        public CommentService(ICommentRepository commentRepository,
+            ILogger<CommentService> logger,
+            ICurrentUserService currentUserService,
+            INotificationService notificationService)
+        {
+            this.commentRepository = commentRepository;
+            this.logger = logger;
+            this.currentUserService = currentUserService;
+            this.notificationService = notificationService;
+        }
+        public async Task<PagedResponse<CommentDto>> GetByPostIdAsync(CommentQuery query)
+        {
+            logger.LogInformation("Getting comments for post with ID: {postId}", query.PostId);
+
+            var postsQuery = commentRepository.GetByPostIdAsync();
+            postsQuery = query.ApplyFilters(postsQuery);
+            var totalCount = await postsQuery.CountAsync();
+            var pagedComments = await postsQuery
+                .Include(c => c.User)
+                .OrderBy(c => c.CreatedAt)
+                .Skip((query.Page - 1) * query.PageSize)
+                .Take(query.PageSize)
+                .ToListAsync();
+
+            var commentDtos = pagedComments.Select(c => c.ToDto()).ToList();
+
+            return new PagedResponse<CommentDto>
+            {
+                Data = commentDtos,
+                Pagination = new PaginationMetadata
+                {
+                    CurrentPage = query.Page,
+                    PageSize = query.PageSize,
+                    TotalItems = totalCount,
+                    TotalPages = (int)Math.Ceiling((double)totalCount / query.PageSize)
+                }
+            };
+        }
+
+        public async Task<CommentDto> CreateAsync(CreateCommentDto dto)
+        {
+            logger.LogInformation("Creating a new comment for post with ID: {PostId}", dto.PostId);
+
+            var userId = currentUserService.UserId ?? throw new UnauthorizedAccessException();
+
+            var comment = dto.ToModel(userId);
+            comment.UserId = userId;
+            comment.ApplicationClientId = currentUserService.ApplicationClientId;
+            var addedComment = await commentRepository.AddAsync(comment);
+
+            await notificationService.NotifyPostCommentAsync(dto.PostUserId, dto.PostId);
+
+            return addedComment.ToDto();
+        }
+
+        public async Task<bool> DeleteAsync(int id)
+        {
+            logger.LogInformation("Deleting comment with ID: {Id}", id);
+
+            var userId = currentUserService.UserId ?? throw new UnauthorizedAccessException();
+
+            var comment = await commentRepository.GetByIdAsync(id);
+            if (comment == null)
+            {
+                logger.LogWarning("Comment with ID: {Id} not found.", id);
+                return false;
+            }
+
+            if (comment.UserId != userId)
+            {
+                logger.LogWarning("User with ID: {UserId} is not authorized to delete comment with ID: {Id}", userId, id);
+                throw new UnauthorizedAccessException();
+            }
+
+            await commentRepository.DeleteAsync(comment);
+            return true;
+        }
+    }
+}

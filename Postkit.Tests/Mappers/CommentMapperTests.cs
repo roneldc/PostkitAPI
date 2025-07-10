@@ -1,6 +1,6 @@
-using Postkit.API.DTOs.Comment;
-using Postkit.API.Mappers;
-using Postkit.API.Models;
+using Postkit.Shared.Models;
+using Postkit.Comments.Mappers;
+using Postkit.Comments.DTOs;
 
 namespace Postkit.Tests.Mappers
 {

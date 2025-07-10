@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Postkit.API.DTOs.Post;
-using Postkit.API.Helpers;
-using Postkit.API.Interfaces;
-using Postkit.API.Queries;
+using Poskit.Posts.DTOs;
+using Poskit.Posts.Interfaces;
+using Postkit.Shared.Helpers;
+using Poskit.Posts.Queries;
 
 namespace Postkit.API.Controllers
 {
@@ -24,10 +24,20 @@ namespace Postkit.API.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> GetAllPosts([FromQuery] PostQuery query)
         {
-            logger.LogInformation("GET api/posts endpoint called with query: {Query}", query);
-            var posts = await postService.GetAllPostsAsync(query);
+            logger.LogInformation("GET api/posts called with query: {Query}", query);
 
+            var posts = await postService.GetAllPostsAsync(query);
             return Ok(ApiResponse<PagedResponse<PostDto>>.SuccessResponse(posts, "Posts retrieved successfully."));
+        }
+
+        [HttpGet("details")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetPostDetails([FromQuery] PostQuery query)
+        {
+            logger.LogInformation("GET api/posts called with query: {Query}", query);
+
+            var posts = await postService.GetAllPostDetailsAsync(query);
+            return Ok(ApiResponse<PagedResponse<PostDetailsDto>>.SuccessResponse(posts, "Posts retrieved successfully."));
         }
 
         [HttpGet("{id}")]

@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Postkit.API.DTOs.Auth;
-using Postkit.API.Helpers;
-using Postkit.API.Interfaces;
+using Postkit.Identity.DTOs.Auth;
+using Postkit.Identity.Interfaces;
+using Postkit.Shared.Helpers;
 
 namespace Postkit.API.Controllers
 {
