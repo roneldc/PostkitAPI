@@ -9,6 +9,8 @@ Postkit is a clean and extensible ASP.NET Core Web API for user authentication, 
 - Register / Login / Change Password
 - Get current user (`/me`)
 - Manage Posts and Comments (CRUD)
+- React to posts (Upvote, Like, etc.)
+- Real-time notifications using SignalR
 - Clean separation: Controller → Service → Repository
 - DTOs for request/response mapping
 - Swagger UI with bearer auth support
@@ -17,24 +19,60 @@ Postkit is a clean and extensible ASP.NET Core Web API for user authentication, 
 ## 📁 Folder Structure
 
 ```
-Postkit.API/
-├── Constants/
-├── Controllers/
-├── Data/
-├── DTOs/
-├── Helpers/
-├── Interfaces/
-├── Mappers/
-├── Middleware/
-├── Models/
-├── Queries/
-├── Repositories/
-├── Services/
-├── Program.cs
-Postkit.Tests/
-├── Helpers/
-├── Mappers/
-├── Services/
+Postkit/
+├── Postkit.API/                     # ASP.NET Core Web API (entry point)
+│   ├── Controllers/                 # Controllers for API endpoints
+│   ├── Middlewares/                 # Global exception handler
+│   ├── Program.cs
+│   ├── appsettings.json
+
+├── Postkit.Infrastructure/         # Infrastructure: EF Core DbContext, migrations
+│   ├── Postkit.Data/               # Centralized EF Core context 
+│   ├── Migrations/                 # EF Core migrations
+
+├── Postkit.Posts/                  # Posts module
+│   ├── Interfaces/                 # IPostRepository, IPostService
+│   ├── Services/                   # PostService.cs
+│   ├── Repositories/               # PostRepository.cs
+│   ├── Mappers/                    # ToDto, ToModel extensions
+│   └── Queries/                    # LINQ queries / filters
+
+├── Postkit.Comments/              # Comments module
+│   ├── Interfaces/
+│   ├── Services/
+│   ├── Repositories/
+│   ├── Mappers/
+│   └── Queries/
+
+├── Postkit.Reactions/             # Reactions module
+│   ├── Interfaces/
+│   ├── Services/
+│   ├── Repositories/
+│   ├── Mappers/
+│   └── Queries/
+
+├── Postkit.Notifications/         # Notifications module (including SignalR)
+│   ├── Interfaces/
+│   ├── Services/
+│   ├── Repositories/
+│   ├── Hubs/                      # SignalR Hub (secured)
+│   └── Mappers/
+
+├── Postkit.Shared/                # Shared layer for DTOs, interfaces
+│   ├── Dtos/                      # Request/Response models
+│   ├── Models/                    # ApplicationUser, base entities
+│   ├── Constants/                 # Role names, claim types, etc.
+│   ├── Helpers/                   # Utility classes, Standardized API response wrapper
+
+├── Postkit.Tests/                 # xUnit test project
+│   ├── Posts/                     # PostServiceTests, PostControllerTests
+│   ├── Comments/
+│   ├── Mocks/                     # Mock services/repositories
+│   └── Utilities/                 # Shared test helpers
+
+├── .gitignore
+├── README.md
+└── Postkit.sln
 ```
 
 ## 🚀 Getting Started
@@ -47,7 +85,7 @@ Postkit.Tests/
 ### Clone & Run
 
 ```bash
-git clone https://github.com/roneldc/Postkit.API.git
+git clone https://github.com/roneldc/PostkitAPI.git
 cd Postkit.API
 dotnet run
 ```
@@ -111,12 +149,16 @@ POST /api/auth/login
 
 ## Architecture
 
-- **Controllers**: Handle HTTP requests only.
-- **Services**: Handle business logic.
-- **Repositories**: Abstract data access.
-- **DTOs**: Separate models for request/response.
-- **ICurrentUserService**: Access current user from token.
-- **ILogger**: Structured logging support.
+- **Modular Structure** - Feature-based projects (Postkit.Posts, Postkit.Comments, Postkit.Reactions, Postkit.Notifications) for scalability and separation of concerns.
+- **Controllers (in Postkit.API)**: Handle HTTP requests and delegate to services. One controller per module (e.g., PostsController, CommentsController).
+- **Services (per module)**: Encapsulate business logic. Inject repositories and utility services like ICurrentUserService and ILogger<T>.
+- **Repositories (per module)**: Abstract and encapsulate data access using PostkitDbContext.
+- **DTOs (in Postkit.Shared)**: Used for request and response mapping across all modules to decouple API contracts from data models.
+- **Mappers (per module)**: Static extension methods to convert between entities and DTOs (ToDto(), ToModel()).
+- **PostkitDbContext (in Postkit.Infrastructure)**: Centralized EF Core context registered in Postkit.API, shared across modules via DI.
+- **ICurrentUserService (in Postkit.Shared)**: Provides access to the currently authenticated user ID from the JWT token.
+- **ILogger**: Structured, per-class logging support via ASP.NET Core's built-in logging (Serilog-compatible).
+- **SignalR Hub (in Postkit.Notifications)**: Handles real-time notification delivery to connected clients (NotificationHub.cs).
 
 ## Sample Users (Seeded in Dev)
 
@@ -148,6 +190,7 @@ User
 - JWT Authentication
 - Swagger / Swashbuckle
 - SQL Server
+- SignalR
 
 ## License
 
