@@ -22,6 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Poskit.Posts\Poskit.Posts.csproj" />
     <ProjectReference Include="..\Postkit.API\Postkit.API.csproj" />
   </ItemGroup>
 

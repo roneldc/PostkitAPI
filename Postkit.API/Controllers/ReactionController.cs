@@ -4,11 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Postkit.API.Constants;
-using Postkit.API.DTOs.Reaction;
-using Postkit.API.Helpers;
-using Postkit.API.Interfaces;
-using Postkit.API.Models;
+using Postkit.Reactions.DTOs;
+using Postkit.Reactions.Interfaces;
+using Postkit.Shared.Constants;
+using Postkit.Shared.Helpers;
 
 namespace Postkit.API.Controllers
 {
@@ -25,8 +24,9 @@ namespace Postkit.API.Controllers
             this.logger = logger;
         }
 
-        [HttpPost]
-        public async Task<IActionResult> ToggleReaction(Guid postId)
+        [HttpPost("toggle-post-upvote/{postId}")]
+        [Authorize(Policy = "AdminOrUser")]
+        public async Task<IActionResult> TogglePostUpvoteReaction(Guid postId)
         {
             logger.LogInformation("POST api/togglereaction endpoint called on Post ID: {PostId}", postId);
             var resultDto = await reactionService.ToggleReactionAsync(postId, TargetTypeNames.Post, ReactionTypeNames.Upvote);

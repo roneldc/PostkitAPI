@@ -1,15 +1,28 @@
-using System.Text;
+
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Postkit.API.Constants;
-using Postkit.API.Data;
-using Postkit.API.Interfaces;
+using Poskit.Posts.Interfaces;
+using Poskit.Posts.Repository;
+using Poskit.Posts.Services;
 using Postkit.API.Middleware;
-using Postkit.API.Models;
-using Postkit.API.Repositories;
-using Postkit.API.Services;
+using Postkit.Comments.Interfaces;
+using Postkit.Comments.Repository;
+using Postkit.Comments.Services;
+using Postkit.Identity.Interfaces;
+using Postkit.Identity.Services;
+using Postkit.Infrastructure.Data;
+using Postkit.Notifications.Hubs;
+using Postkit.Notifications.Interfaces;
+using Postkit.Notifications.Repositories;
+using Postkit.Notifications.Services;
+using Postkit.Reactions.Interfaces;
+using Postkit.Reactions.Repositories;
+using Postkit.Reactions.Services;
+using Postkit.Shared.Constants;
+using Postkit.Shared.Models;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +39,12 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<PostkitDbContext>()
     .AddDefaultTokenProviders();
 
+builder.Services.AddSignalR()
+    .AddHubOptions<NotificationHub>(options =>
+    {
+        options.ClientTimeoutInterval = TimeSpan.FromSeconds(30);
+    }); 
+
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
@@ -38,6 +57,8 @@ builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IReactionRepository, ReactionRepository>();
 builder.Services.AddScoped<IReactionService, ReactionService>();
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 
 builder.Services.AddAuthentication(options =>
 {
@@ -58,6 +79,19 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = builder.Configuration["Jwt:Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(
             Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
+    };
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var accessToken = context.Request.Query["access_token"];
+            var path = context.HttpContext.Request.Path;
+            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs/notifications"))
+            {
+                context.Token = accessToken;
+            }
+            return Task.CompletedTask;
+        }
     };
 });
 
@@ -80,7 +114,8 @@ builder.Services.AddCors(options =>
     {
         policy.WithOrigins(allowedOrigins ?? Array.Empty<string>())
               .AllowAnyHeader()
-              .AllowAnyMethod();
+              .AllowAnyMethod()
+              .AllowCredentials();
     });
 });
 
@@ -92,7 +127,7 @@ using (var scope = app.Services.CreateScope())
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
-    await DataSeeder.SeedAsync(dbContext, userManager, roleManager);
+    await DbSeeder.SeedAsync(dbContext, userManager, roleManager);
 }
 
 // Configure the HTTP request pipeline.
@@ -109,6 +144,8 @@ app.UseCors("ConfiguredCors");
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapHub<NotificationHub>("/hubs/notifications");
 
 app.MapControllers();
 

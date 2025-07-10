@@ -1,10 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Postkit.API.DTOs.Comment;
-using Postkit.API.Helpers;
-using Postkit.API.Interfaces;
-using Postkit.API.Queries;
-
+using Postkit.Comments.DTOs;
+using Postkit.Comments.Interfaces;
+using Postkit.Comments.Queries;
+using Postkit.Shared.Helpers;
 namespace Postkit.API.Controllers
 {
     [ApiController]

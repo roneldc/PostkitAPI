@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Postkit.Identity\Postkit.Identity.csproj" />
+    <ProjectReference Include="..\Postkit.Infrastructure\Postkit.Infrastructure.csproj" />
+    <ProjectReference Include="..\Postkit.Shared\Postkit.Shared.csproj" />
+  </ItemGroup>
+
+</Project>

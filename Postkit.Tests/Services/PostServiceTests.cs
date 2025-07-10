@@ -1,9 +1,10 @@
 using Microsoft.Extensions.Logging;
 using Moq;
-using Postkit.API.DTOs.Post;
-using Postkit.API.Interfaces;
-using Postkit.API.Models;
-using Postkit.API.Services;
+using Poskit.Posts.DTOs;
+using Poskit.Posts.Interfaces;
+using Poskit.Posts.Services;
+using Postkit.Identity.Interfaces;
+using Postkit.Shared.Models;
 
 namespace Postkit.Tests.Services
 {

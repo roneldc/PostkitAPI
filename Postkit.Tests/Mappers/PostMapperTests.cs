@@ -1,6 +1,6 @@
-using Postkit.API.DTOs.Post;
-using Postkit.API.Mappers;
-using Postkit.API.Models;
+using Poskit.Posts.DTOs;
+using Poskit.Posts.Mappers;
+using Postkit.Shared.Models;
 
 namespace Postkit.Tests.Mappers
 {

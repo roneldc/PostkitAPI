@@ -2,11 +2,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
-using Postkit.API.Constants;
-using Postkit.API.DTOs.Auth;
-using Postkit.API.Interfaces;
-using Postkit.API.Models;
-using Postkit.API.Services;
+using Postkit.Identity.DTOs.Auth;
+using Postkit.Identity.Interfaces;
+using Postkit.Identity.Services;
+using Postkit.Shared.Constants;
+using Postkit.Shared.Models;
 
 namespace Postkit.Tests.Services
 {

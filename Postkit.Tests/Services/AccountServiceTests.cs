@@ -1,14 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Moq;
-using Postkit.API.DTOs.Account;
-using Postkit.API.Interfaces;
-using Postkit.API.Models;
-using Postkit.API.Services;
+using Postkit.Identity.DTOs.Account;
+using Postkit.Identity.Interfaces;
+using Postkit.Identity.Services;
+using Postkit.Shared.Models;
 
 namespace Postkit.Tests.Services
 {
