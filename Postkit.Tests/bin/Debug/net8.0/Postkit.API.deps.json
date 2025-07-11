@@ -14,7 +14,7 @@
           "Microsoft.EntityFrameworkCore": "8.0.16",
           "Microsoft.EntityFrameworkCore.SqlServer": "8.0.16",
           "Microsoft.EntityFrameworkCore.Tools": "8.0.16",
-          "Poskit.Posts": "1.0.0",
+          "Postkit.Posts": "1.0.0",
           "Postkit.Reactions": "1.0.0",
           "Swashbuckle.AspNetCore": "6.4.0"
         },
@@ -1224,16 +1224,6 @@
           }
         }
       },
-      "Poskit.Posts/1.0.0": {
-        "dependencies": {
-          "Postkit.Comments": "1.0.0",
-          "Postkit.Infrastructure": "1.0.0",
-          "Postkit.Shared": "1.0.0"
-        },
-        "runtime": {
-          "Poskit.Posts.dll": {}
-        }
-      },
       "Postkit.Comments/1.0.0": {
         "dependencies": {
           "Postkit.Identity": "1.0.0",
@@ -1275,6 +1265,16 @@
         },
         "runtime": {
           "Postkit.Notifications.dll": {}
+        }
+      },
+      "Postkit.Posts/1.0.0": {
+        "dependencies": {
+          "Postkit.Comments": "1.0.0",
+          "Postkit.Infrastructure": "1.0.0",
+          "Postkit.Shared": "1.0.0"
+        },
+        "runtime": {
+          "Postkit.Posts.dll": {}
         }
       },
       "Postkit.Reactions/1.0.0": {
@@ -2095,11 +2095,6 @@
       "path": "system.windows.extensions/6.0.0",
       "hashPath": "system.windows.extensions.6.0.0.nupkg.sha512"
     },
-    "Poskit.Posts/1.0.0": {
-      "type": "project",
-      "serviceable": false,
-      "sha512": ""
-    },
     "Postkit.Comments/1.0.0": {
       "type": "project",
       "serviceable": false,
@@ -2116,6 +2111,11 @@
       "sha512": ""
     },
     "Postkit.Notifications/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Postkit.Posts/1.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Postkit.Notifications.DTOs
+﻿namespace Postkit.Notifications.DTOs
 {
     public class NotificationDto
     {

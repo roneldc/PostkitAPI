@@ -3,11 +3,6 @@ using Microsoft.Extensions.Logging;
 using Poskit.Posts.Interfaces;
 using Postkit.Infrastructure.Data;
 using Postkit.Shared.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Poskit.Posts.Repository
 {

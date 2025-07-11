@@ -2,8 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Postkit.Notifications.DTOs;
 using Postkit.Notifications.Interfaces;
-using Postkit.Shared.Helpers;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using Postkit.Shared.Responses;
 
 namespace Postkit.API.Controllers
 {

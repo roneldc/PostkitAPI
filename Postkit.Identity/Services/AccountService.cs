@@ -5,13 +5,8 @@ using Postkit.Identity.DTOs.Account;
 using Postkit.Identity.DTOs.Auth;
 using Postkit.Identity.Interfaces;
 using Postkit.Identity.Queries;
-using Postkit.Shared.Helpers;
+using Postkit.Shared.Responses;
 using Postkit.Shared.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Postkit.Identity.Services
 {

@@ -5,12 +5,7 @@ using Poskit.Posts.Interfaces;
 using Poskit.Posts.Mappers;
 using Poskit.Posts.Queries;
 using Postkit.Identity.Interfaces;
-using Postkit.Shared.Helpers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Postkit.Shared.Responses;
 
 namespace Poskit.Posts.Services
 {

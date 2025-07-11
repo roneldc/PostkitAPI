@@ -1,0 +1,82 @@
+﻿@page "/api"
+
+<PageTitle>Postkit | API</PageTitle>
+
+<div class="container mt-3">
+    <h1 class="text-4xl font-bold mb-6">API Overview</h1>
+
+    <p class="text-gray-700 text-lg mb-6">
+        Below is a summary of the core endpoints available in the Postkit API. You can also explore the live Swagger documentation.
+    </p>
+
+    <a href="https://localhost:5001/swagger" target="_blank" class="inline-block text-blue-600 underline hover:text-blue-800 transition font-medium mb-10">
+        View Swagger UI →
+    </a>
+
+    <hr class="my-12 border-gray-300" />
+
+    <section class="mb-3">
+        <h2 class="text-2xl font-semibold mb-2">Authentication & Account</h2>
+        <ul class="list-disc list-inside text-gray-700 space-y-2">
+            <li><code class="bg-gray-100 px-1 py-0.5 rounded">POST /api/auth/register</code> – Register a new user</li>
+            <li><code class="bg-gray-100 px-1 py-0.5 rounded">POST /api/auth/login</code> – Login and receive JWT</li>
+            <li><code class="bg-gray-100 px-1 py-0.5 rounded">GET /api/account/me</code> – Get current authenticated user</li>
+            <li><code class="bg-gray-100 px-1 py-0.5 rounded">POST /api/account/change-password</code> – Change password</li>
+            <li><code class="bg-gray-100 px-1 py-0.5 rounded">GET /api/account/users</code> – List users (Admin)</li>
+            <li><code class="bg-gray-100 px-1 py-0.5 rounded">POST /api/account/assign-role</code> – Assign user roles</li>
+        </ul>
+    </section>
+
+    <section class="mb-3">
+        <h2 class="text-2xl font-semibold mb-2">Posts & Comments</h2>
+        <ul class="list-disc list-inside text-gray-700 space-y-2">
+            <li><code class="bg-gray-100 px-1 py-0.5 rounded">GET /api/posts</code> – List all posts</li>
+            <li><code class="bg-gray-100 px-1 py-0.5 rounded">GET /api/posts/{id}</code> – Get post by ID</li>
+            <li><code class="bg-gray-100 px-1 py-0.5 rounded">POST /api/posts</code> – Create a new post</li>
+            <li><code class="bg-gray-100 px-1 py-0.5 rounded">PUT /api/posts/{id}</code> – Update a post</li>
+            <li><code class="bg-gray-100 px-1 py-0.5 rounded">DELETE /api/posts/{id}</code> – Delete a post</li>
+            <li><code class="bg-gray-100 px-1 py-0.5 rounded">GET /api/comments?PostId={postId}</code> – List comments for a post</li>
+            <li><code class="bg-gray-100 px-1 py-0.5 rounded">POST /api/posts/{postId}/comments</code> – Add a comment</li>
+            <li><code class="bg-gray-100 px-1 py-0.5 rounded">DELETE /api/comments/{id}</code> – Delete a comment</li>
+        </ul>
+    </section>
+
+    <section class="mb-3">
+        <h2 class="text-2xl font-semibold mb-2">Reactions</h2>
+        <ul class="list-disc list-inside text-gray-700 space-y-2">
+            <li><code class="bg-gray-100 px-1 py-0.5 rounded">POST /api/reactions</code> – React to a post or comment</li>
+            <li><code class="bg-gray-100 px-1 py-0.5 rounded">GET /api/posts/{postId}/reactions</code> – Get reactions by post</li>
+        </ul>
+    </section>
+
+    <section class="mb-3">
+        <h2 class="text-2xl font-semibold mb-2">Notifications</h2>
+        <p class="text-gray-700 mb-2">Real-time notifications are powered by SignalR.</p>
+        <ul class="list-disc list-inside text-gray-700 space-y-2">
+            <li>Client connects to <code class="bg-gray-100 px-1 py-0.5 rounded">/notificationHub</code></li>
+            <li>Server pushes messages using <code class="bg-gray-100 px-1 py-0.5 rounded">Clients.User(userId).SendAsync()</code></li>
+            <li>Example: Notify on comment reply or reaction</li>
+        </ul>
+    </section>
+
+    <section class="mb-3">
+        <h2 class="text-2xl font-semibold mb-2">Authorization</h2>
+        <ul class="list-disc list-inside text-gray-700 space-y-2">
+            <li>Use JWT token in <code class="bg-gray-100 px-1 py-0.5 rounded">Authorization: Bearer {token}</code> header</li>
+            <li>Some routes (e.g., <code class="bg-gray-100 px-1 py-0.5 rounded">/assign-role</code>) are Admin-only</li>
+        </ul>
+    </section>
+
+    <section class="mb-2">
+        <h2 class="text-2xl font-semibold mb-2">Example Request</h2>
+        <pre class="bg-gray-100 p-6 rounded-md text-sm text-gray-800 overflow-x-auto">
+POST /api/posts
+Authorization: Bearer &lt;your_token&gt;
+
+{
+  "title": "First Post",
+  "content": "This is the first post created via API."
+}
+        </pre>
+    </section>
+</div>

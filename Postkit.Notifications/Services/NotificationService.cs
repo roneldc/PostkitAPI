@@ -5,12 +5,6 @@ using Postkit.Notifications.DTOs;
 using Postkit.Notifications.Hubs;
 using Postkit.Notifications.Interfaces;
 using Postkit.Notifications.Mappers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace Postkit.Notifications.Services
 {
     public class NotificationService : INotificationService

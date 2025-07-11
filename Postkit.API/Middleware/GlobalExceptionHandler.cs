@@ -1,6 +1,6 @@
 using System.Net;
 using Microsoft.AspNetCore.Diagnostics;
-using Postkit.Shared.Helpers;
+using Postkit.Shared.Responses;
 
 namespace Postkit.API.Middleware
 {

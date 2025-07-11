@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Poskit.Posts.DTOs;
 using Poskit.Posts.Interfaces;
-using Postkit.Shared.Helpers;
+using Postkit.Shared.Responses;
 using Poskit.Posts.Queries;
 
 namespace Postkit.API.Controllers

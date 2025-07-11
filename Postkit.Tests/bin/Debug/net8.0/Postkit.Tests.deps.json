@@ -10,8 +10,8 @@
         "dependencies": {
           "Microsoft.NET.Test.Sdk": "17.8.0",
           "Moq": "4.20.72",
-          "Poskit.Posts": "1.0.0",
           "Postkit.API": "1.0.0",
+          "Postkit.Posts": "1.0.0",
           "coverlet.collector": "6.0.0",
           "xunit": "2.5.3",
           "xunit.runner.visualstudio": "2.5.3"
@@ -1845,16 +1845,6 @@
         }
       },
       "xunit.runner.visualstudio/2.5.3": {},
-      "Poskit.Posts/1.0.0": {
-        "dependencies": {
-          "Postkit.Comments": "1.0.0",
-          "Postkit.Infrastructure": "1.0.0",
-          "Postkit.Shared": "1.0.0"
-        },
-        "runtime": {
-          "Poskit.Posts.dll": {}
-        }
-      },
       "Postkit.API/1.0.0": {
         "dependencies": {
           "Microsoft.AspNetCore.Authentication.JwtBearer": "8.0.16",
@@ -1862,7 +1852,7 @@
           "Microsoft.AspNetCore.OpenApi": "8.0.4",
           "Microsoft.EntityFrameworkCore": "8.0.16",
           "Microsoft.EntityFrameworkCore.SqlServer": "8.0.16",
-          "Poskit.Posts": "1.0.0",
+          "Postkit.Posts": "1.0.0",
           "Postkit.Reactions": "1.0.0",
           "Swashbuckle.AspNetCore": "6.4.0"
         },
@@ -1913,6 +1903,16 @@
           "Postkit.Notifications.dll": {}
         }
       },
+      "Postkit.Posts/1.0.0": {
+        "dependencies": {
+          "Postkit.Comments": "1.0.0",
+          "Postkit.Infrastructure": "1.0.0",
+          "Postkit.Shared": "1.0.0"
+        },
+        "runtime": {
+          "Postkit.Posts.dll": {}
+        }
+      },
       "Postkit.Reactions/1.0.0": {
         "dependencies": {
           "Postkit.Infrastructure": "1.0.0",
@@ -1930,6 +1930,14 @@
         },
         "runtime": {
           "Postkit.Shared.dll": {}
+        }
+      },
+      "Poskit.Posts/1.0.0.0": {
+        "runtime": {
+          "Poskit.Posts.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
         }
       }
     }
@@ -3200,11 +3208,6 @@
       "path": "xunit.runner.visualstudio/2.5.3",
       "hashPath": "xunit.runner.visualstudio.2.5.3.nupkg.sha512"
     },
-    "Poskit.Posts/1.0.0": {
-      "type": "project",
-      "serviceable": false,
-      "sha512": ""
-    },
     "Postkit.API/1.0.0": {
       "type": "project",
       "serviceable": false,
@@ -3230,6 +3233,11 @@
       "serviceable": false,
       "sha512": ""
     },
+    "Postkit.Posts/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
     "Postkit.Reactions/1.0.0": {
       "type": "project",
       "serviceable": false,
@@ -3237,6 +3245,11 @@
     },
     "Postkit.Shared/1.0.0": {
       "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Poskit.Posts/1.0.0.0": {
+      "type": "reference",
       "serviceable": false,
       "sha512": ""
     }

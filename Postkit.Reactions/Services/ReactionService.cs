@@ -4,11 +4,6 @@ using Postkit.Notifications.Interfaces;
 using Postkit.Reactions.DTOs;
 using Postkit.Reactions.Interfaces;
 using Postkit.Shared.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Postkit.Reactions.Services
 {
@@ -29,13 +24,13 @@ namespace Postkit.Reactions.Services
             this.currentUserService = currentUserService;
             this.notificationService = notificationService;
         }
-        public async Task<ReactionDto> ToggleReactionAsync(Guid postId, string targetType, string reactionType)
+        public async Task<ReactionDto> ToggleReactionAsync(ReactionToggleDto dto)
         {
-            logger.LogInformation("Toggling reaction for PostId: {PostId}", postId);
+            logger.LogInformation("Toggling reaction for PostId: {PostId}", dto.PostId);
             var userId = currentUserService.UserId ?? throw new UnauthorizedAccessException();
             var applicationClientId = currentUserService.ApplicationClientId;
 
-            var existingReaction = await reactionRepo.GetByUserPostAndTypeAsync(userId, postId, reactionType, applicationClientId);
+            var existingReaction = await reactionRepo.GetByUserPostAndTypeAsync(userId, dto.PostId, dto.ReactionType, applicationClientId);
 
             if (existingReaction != null)
             {
@@ -45,19 +40,19 @@ namespace Postkit.Reactions.Services
             {
                 var reaction = new Reaction
                 {
-                    PostId = postId,
+                    PostId = dto.PostId,
                     UserId = userId,
-                    TargetType = targetType,
-                    Type = reactionType,
+                    TargetType = dto.TargetType,
+                    Type = dto.ReactionType,
                     CreatedAt = DateTime.UtcNow,
                     ApplicationClientId = applicationClientId
                 };
                 await reactionRepo.AddAsync(reaction);
 
-                await notificationService.NotifyPostReactionAsync(userId, postId);
+                await notificationService.NotifyPostReactionAsync(userId, dto.PostId);
             }
 
-            var updatedCount = await reactionRepo.CountByPostAndTypeAsync(postId, reactionType, applicationClientId);
+            var updatedCount = await reactionRepo.CountByPostAndTypeAsync(dto.PostId, dto.ReactionType, applicationClientId);
             var userHasReacted = existingReaction == null;
 
             return new ReactionDto

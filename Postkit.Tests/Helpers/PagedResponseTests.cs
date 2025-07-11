@@ -1,4 +1,4 @@
-using Postkit.Shared.Helpers;
+using Postkit.Shared.Responses;
 
 namespace Postkit.Tests.Helpers
 {
