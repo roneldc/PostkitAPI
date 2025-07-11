@@ -7,19 +7,21 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Postkit.API", "Postkit.API\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Postkit.Tests", "Postkit.Tests\Postkit.Tests.csproj", "{6BA4BF89-4BA3-4ACB-BC3F-96DF48F5A131}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Poskit.Posts", "Poskit.Posts\Poskit.Posts.csproj", "{1554ACFD-1428-469D-8837-2B96C6976DB1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Postkit.Posts", "Poskit.Posts\Postkit.Posts.csproj", "{1554ACFD-1428-469D-8837-2B96C6976DB1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Postkit.Identity", "Postkit.Identity\Postkit.Identity.csproj", "{38B600C4-009B-4091-B9F3-A6B07C347A40}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Postkit.Identity", "Postkit.Identity\Postkit.Identity.csproj", "{38B600C4-009B-4091-B9F3-A6B07C347A40}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Postkit.Comments", "Postkit.Comments\Postkit.Comments.csproj", "{EFC97672-36E2-45B9-B69F-C53245A01617}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Postkit.Comments", "Postkit.Comments\Postkit.Comments.csproj", "{EFC97672-36E2-45B9-B69F-C53245A01617}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Postkit.Reactions", "Postkit.Reactions\Postkit.Reactions.csproj", "{13CFF86E-5AD6-41D8-9C9A-9E51EF8054CF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Postkit.Reactions", "Postkit.Reactions\Postkit.Reactions.csproj", "{13CFF86E-5AD6-41D8-9C9A-9E51EF8054CF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Postkit.Shared", "Postkit.Shared\Postkit.Shared.csproj", "{15AA0522-41E7-4E6D-B665-C8D83EFF7022}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Postkit.Shared", "Postkit.Shared\Postkit.Shared.csproj", "{15AA0522-41E7-4E6D-B665-C8D83EFF7022}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Postkit.Notifications", "Postkit.Notifications\Postkit.Notifications.csproj", "{45014092-2BFF-4F1C-B07C-A777B29ADDC6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Postkit.Notifications", "Postkit.Notifications\Postkit.Notifications.csproj", "{45014092-2BFF-4F1C-B07C-A777B29ADDC6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Postkit.Infrastructure", "Postkit.Infrastructure\Postkit.Infrastructure.csproj", "{D031D8F6-AA67-48CE-9718-D5CB6D3EA0EA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Postkit.Infrastructure", "Postkit.Infrastructure\Postkit.Infrastructure.csproj", "{D031D8F6-AA67-48CE-9718-D5CB6D3EA0EA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Postkit.UI", "Postkit.UI\Postkit.UI.csproj", "{EE761D52-537D-4D2F-9432-12222A6EDE0B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,6 +65,10 @@ Global
 		{D031D8F6-AA67-48CE-9718-D5CB6D3EA0EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D031D8F6-AA67-48CE-9718-D5CB6D3EA0EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D031D8F6-AA67-48CE-9718-D5CB6D3EA0EA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE761D52-537D-4D2F-9432-12222A6EDE0B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE761D52-537D-4D2F-9432-12222A6EDE0B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE761D52-537D-4D2F-9432-12222A6EDE0B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE761D52-537D-4D2F-9432-12222A6EDE0B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

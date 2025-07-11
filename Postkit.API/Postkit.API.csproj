@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Poskit.Posts\Poskit.Posts.csproj" />
+    <ProjectReference Include="..\Poskit.Posts\Postkit.Posts.csproj" />
     <ProjectReference Include="..\Postkit.Reactions\Postkit.Reactions.csproj" />
   </ItemGroup>
 

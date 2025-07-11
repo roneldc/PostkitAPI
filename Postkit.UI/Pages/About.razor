@@ -1,0 +1,50 @@
+﻿@page "/about"
+
+<PageTitle>Postkit | About</PageTitle>
+
+<div class="container mt-2 mb-2">
+    <h1 class="text-4xl font-bold mb-6">About Postkit</h1>
+
+    <p class="text-gray-700 text-lg mb-3 leading-relaxed">
+        <strong>Postkit</strong> is a modular, scalable Web API built with ASP.NET Core 8, Entity Framework Core, and Identity.
+        It demonstrates clean architecture and real-world features such as role-based access, JWT authentication, and SignalR notifications.
+        Designed as both a learning resource and a portfolio-ready backend for social and community-style applications.
+    </p>
+
+    <h2 class="text-2xl font-semibold mb-2">Purpose</h2>
+    <p class="text-gray-700 mb-3 leading-relaxed">
+        This project serves to practice and showcase modular architecture, separation of concerns, real-time event handling, and modern API design.
+        It adheres to contemporary .NET best practices and is extensible for future features like replies, search, filtering, and analytics.
+    </p>
+
+    <h2 class="text-2xl font-semibold mb-2">Tech Stack</h2>
+    <ul class="list-disc list-inside text-gray-700 mb-3 space-y-1">
+        <li>ASP.NET Core 8 (Web API)</li>
+        <li>Entity Framework Core (Code-first)</li>
+        <li>ASP.NET Identity with JWT Authentication</li>
+        <li>SignalR for real-time notifications</li>
+        <li>xUnit for unit testing</li>
+        <li>Serilog for structured logging</li>
+        <li>Swagger for API documentation</li>
+        <li>Blazor WebAssembly for the front-end UI</li>
+    </ul>
+
+    <h2 class="text-2xl font-semibold mb-2">Modular Design</h2>
+    <p class="text-gray-700 mb-3 leading-relaxed">
+        Postkit is organized by feature, with each encapsulated in its own class library (<em>Post, Comment, Reaction, Notification</em>) to ensure clear separation of concerns and maintainability.
+        The <code class="bg-gray-100 px-1 py-0.5 rounded text-sm">Postkit.Shared</code> project contains reusable DTOs, enums, and interfaces shared across all modules.
+    </p>
+
+    <h2 class="text-2xl font-semibold mb-2">Repository & License</h2>
+    <p class="text-gray-700 mb-3 leading-relaxed">
+        Open-source and available on
+        <a href="https://github.com/roneldc/PostkitAPI.git" target="_blank" class="text-blue-600 underline hover:text-blue-800">GitHub</a>.<br />
+        Licensed under the MIT License.
+    </p>
+
+    <h2 class="text-2xl font-semibold mb-2">Author</h2>
+    <p class="text-gray-700 leading-relaxed mb-2">
+        Built by John Ronel Dela Cruz – Full-stack Software Engineer based in the Philippines.<br />
+        Focused on .NET technologies and scalable web solutions.
+    </p>
+</div>

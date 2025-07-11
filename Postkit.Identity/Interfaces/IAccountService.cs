@@ -1,12 +1,7 @@
 ﻿using Postkit.Identity.DTOs.Account;
 using Postkit.Identity.DTOs.Auth;
 using Postkit.Identity.Queries;
-using Postkit.Shared.Helpers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Postkit.Shared.Responses;
 
 namespace Postkit.Identity.Interfaces
 {

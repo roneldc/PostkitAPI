@@ -4,12 +4,12 @@
     "C:\\Users\\johnr\\OneDrive\\Desktop\\Postkit\\Postkit.Tests\\Postkit.Tests.csproj": {}
   },
   "projects": {
-    "C:\\Users\\johnr\\OneDrive\\Desktop\\Postkit\\Poskit.Posts\\Poskit.Posts.csproj": {
+    "C:\\Users\\johnr\\OneDrive\\Desktop\\Postkit\\Poskit.Posts\\Postkit.Posts.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\johnr\\OneDrive\\Desktop\\Postkit\\Poskit.Posts\\Poskit.Posts.csproj",
-        "projectName": "Poskit.Posts",
-        "projectPath": "C:\\Users\\johnr\\OneDrive\\Desktop\\Postkit\\Poskit.Posts\\Poskit.Posts.csproj",
+        "projectUniqueName": "C:\\Users\\johnr\\OneDrive\\Desktop\\Postkit\\Poskit.Posts\\Postkit.Posts.csproj",
+        "projectName": "Postkit.Posts",
+        "projectPath": "C:\\Users\\johnr\\OneDrive\\Desktop\\Postkit\\Poskit.Posts\\Postkit.Posts.csproj",
         "packagesPath": "C:\\Users\\johnr\\.nuget\\packages\\",
         "outputPath": "C:\\Users\\johnr\\OneDrive\\Desktop\\Postkit\\Poskit.Posts\\obj\\",
         "projectStyle": "PackageReference",
@@ -106,8 +106,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\johnr\\OneDrive\\Desktop\\Postkit\\Poskit.Posts\\Poskit.Posts.csproj": {
-                "projectPath": "C:\\Users\\johnr\\OneDrive\\Desktop\\Postkit\\Poskit.Posts\\Poskit.Posts.csproj"
+              "C:\\Users\\johnr\\OneDrive\\Desktop\\Postkit\\Poskit.Posts\\Postkit.Posts.csproj": {
+                "projectPath": "C:\\Users\\johnr\\OneDrive\\Desktop\\Postkit\\Poskit.Posts\\Postkit.Posts.csproj"
               },
               "C:\\Users\\johnr\\OneDrive\\Desktop\\Postkit\\Postkit.Reactions\\Postkit.Reactions.csproj": {
                 "projectPath": "C:\\Users\\johnr\\OneDrive\\Desktop\\Postkit\\Postkit.Reactions\\Postkit.Reactions.csproj"
@@ -683,8 +683,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\johnr\\OneDrive\\Desktop\\Postkit\\Poskit.Posts\\Poskit.Posts.csproj": {
-                "projectPath": "C:\\Users\\johnr\\OneDrive\\Desktop\\Postkit\\Poskit.Posts\\Poskit.Posts.csproj"
+              "C:\\Users\\johnr\\OneDrive\\Desktop\\Postkit\\Poskit.Posts\\Postkit.Posts.csproj": {
+                "projectPath": "C:\\Users\\johnr\\OneDrive\\Desktop\\Postkit\\Poskit.Posts\\Postkit.Posts.csproj"
               },
               "C:\\Users\\johnr\\OneDrive\\Desktop\\Postkit\\Postkit.API\\Postkit.API.csproj": {
                 "projectPath": "C:\\Users\\johnr\\OneDrive\\Desktop\\Postkit\\Postkit.API\\Postkit.API.csproj"

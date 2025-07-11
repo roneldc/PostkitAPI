@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Postkit.Comments.DTOs;
 using Postkit.Comments.Interfaces;
 using Postkit.Comments.Queries;
-using Postkit.Shared.Helpers;
+using Postkit.Shared.Responses;
 namespace Postkit.API.Controllers
 {
     [ApiController]

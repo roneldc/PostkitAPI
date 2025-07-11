@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Postkit.Tests")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9bdebbba20d6d23ae37b89fdd59f36825a579e11")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2d114d68ba6d7a6ee05b0f544327a9e075b112fe")]
 [assembly: System.Reflection.AssemblyProductAttribute("Postkit.Tests")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Postkit.Tests")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

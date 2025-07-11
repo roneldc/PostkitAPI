@@ -6,12 +6,7 @@ using Postkit.Comments.Mappers;
 using Postkit.Comments.Queries;
 using Postkit.Identity.Interfaces;
 using Postkit.Notifications.Interfaces;
-using Postkit.Shared.Helpers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Postkit.Shared.Responses;
 
 namespace Postkit.Comments.Services
 {

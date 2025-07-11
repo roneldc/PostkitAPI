@@ -1,11 +1,6 @@
 ﻿using Postkit.Comments.DTOs;
 using Postkit.Comments.Queries;
-using Postkit.Shared.Helpers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Postkit.Shared.Responses;
 
 namespace Postkit.Comments.Interfaces
 {

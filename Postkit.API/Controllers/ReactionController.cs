@@ -1,13 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Postkit.Reactions.DTOs;
 using Postkit.Reactions.Interfaces;
-using Postkit.Shared.Constants;
-using Postkit.Shared.Helpers;
+using Postkit.Shared.Responses;
 
 namespace Postkit.API.Controllers
 {
@@ -24,12 +19,12 @@ namespace Postkit.API.Controllers
             this.logger = logger;
         }
 
-        [HttpPost("toggle-post-upvote/{postId}")]
+        [HttpPost]
         [Authorize(Policy = "AdminOrUser")]
-        public async Task<IActionResult> TogglePostUpvoteReaction(Guid postId)
+        public async Task<IActionResult> ToggleReaction([FromBody] ReactionToggleDto dto)
         {
-            logger.LogInformation("POST api/togglereaction endpoint called on Post ID: {PostId}", postId);
-            var resultDto = await reactionService.ToggleReactionAsync(postId, TargetTypeNames.Post, ReactionTypeNames.Upvote);
+            logger.LogInformation("POST api/reaction endpoint called on Post ID: {PostId}", dto.PostId);
+            var resultDto = await reactionService.ToggleReactionAsync(dto);
             return Ok(ApiResponse<ReactionDto>.SuccessResponse(resultDto));
         }
     }

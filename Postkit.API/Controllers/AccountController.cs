@@ -1,5 +1,3 @@
-
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Postkit.Identity.DTOs.Account;
@@ -7,7 +5,7 @@ using Postkit.Identity.DTOs.Auth;
 using Postkit.Identity.Interfaces;
 using Postkit.Identity.Queries;
 using Postkit.Shared.Constants;
-using Postkit.Shared.Helpers;
+using Postkit.Shared.Responses;
 
 namespace Postkit.API.Controllers
 {
