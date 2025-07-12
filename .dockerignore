@@ -1,6 +1,8 @@
+bin/
+obj/
 **/bin/
 **/obj/
 .vscode/
-.git/
 .DS_Store
 .env
+*.user

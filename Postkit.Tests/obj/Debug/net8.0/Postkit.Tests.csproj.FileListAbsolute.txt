@@ -160,8 +160,10 @@ C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\Postkit.C
 C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\Postkit.Identity.dll
 C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\Postkit.Infrastructure.dll
 C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\Postkit.Notifications.dll
+C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\Postkit.Posts.dll
 C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\Postkit.Reactions.dll
 C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\Postkit.Shared.dll
+C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\Postkit.Posts.pdb
 C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\Postkit.API.pdb
 C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\Postkit.Comments.pdb
 C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\Postkit.Identity.pdb
@@ -181,5 +183,3 @@ C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\obj\Debug\net8.0\refint\Po
 C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\obj\Debug\net8.0\Postkit.Tests.pdb
 C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\obj\Debug\net8.0\Postkit.Tests.genruntimeconfig.cache
 C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\obj\Debug\net8.0\ref\Postkit.Tests.dll
-C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\Postkit.Posts.dll
-C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\Postkit.Posts.pdb

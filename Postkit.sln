@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Postkit.API", "Postkit.API\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Postkit.Tests", "Postkit.Tests\Postkit.Tests.csproj", "{6BA4BF89-4BA3-4ACB-BC3F-96DF48F5A131}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Postkit.Posts", "Poskit.Posts\Postkit.Posts.csproj", "{1554ACFD-1428-469D-8837-2B96C6976DB1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Postkit.Posts", "Postkit.Posts\Postkit.Posts.csproj", "{1554ACFD-1428-469D-8837-2B96C6976DB1}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Postkit.Identity", "Postkit.Identity\Postkit.Identity.csproj", "{38B600C4-009B-4091-B9F3-A6B07C347A40}"
 EndProject

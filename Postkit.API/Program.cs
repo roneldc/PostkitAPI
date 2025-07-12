@@ -1,4 +1,3 @@
-
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -38,6 +37,8 @@ builder.Services.AddDbContext<PostkitDbContext>(options =>
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<PostkitDbContext>()
     .AddDefaultTokenProviders();
+
+builder.Services.AddRouting();
 
 builder.Services.AddSignalR()
     .AddHubOptions<NotificationHub>(options =>
@@ -121,26 +122,35 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-using (var scope = app.Services.CreateScope())
-{
-    var dbContext = scope.ServiceProvider.GetRequiredService<PostkitDbContext>();
-    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-
-    await DbSeeder.SeedAsync(dbContext, userManager, roleManager);
-}
-
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Postkit API v1");
+        c.RoutePrefix = "swagger";
+    });
+
+    using (var scope = app.Services.CreateScope())
+    {
+        var dbContext = scope.ServiceProvider.GetRequiredService<PostkitDbContext>();
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+        await DbSeeder.SeedAsync(dbContext, userManager, roleManager);
+    }
 }
+
+app.UseDefaultFiles();
+app.UseStaticFiles();
 
 app.UseExceptionHandler(_ => { });
 app.UseHttpsRedirection();
 
 app.UseCors("ConfiguredCors");
+
+app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
@@ -148,5 +158,7 @@ app.UseAuthorization();
 app.MapHub<NotificationHub>("/hubs/notifications");
 
 app.MapControllers();
+
+app.MapFallbackToFile("index.html");
 
 app.Run();
