@@ -22,6 +22,8 @@ COPY Postkit.Notifications/Postkit.Notifications.csproj Postkit.Notifications/
 COPY Postkit.Posts/Postkit.Posts.csproj Postkit.Posts/
 COPY Postkit.Reactions/Postkit.Reactions.csproj Postkit.Reactions/
 COPY Postkit.Shared/Postkit.Shared.csproj Postkit.Shared/
+COPY Postkit.Tests/Postkit.Tests.csproj Postkit.Tests/
+COPY Postkit.UI/Postkit.UI.csproj Postkit.UI/
 
 RUN dotnet restore
 
