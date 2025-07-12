@@ -8,11 +8,11 @@ RUN dotnet restore Postkit.UI/Postkit.UI.csproj
 COPY Postkit.UI/ Postkit.UI/
 RUN dotnet publish Postkit.UI -c Release -o /out-ui
 
-# Stage 2: Build the API with all projects
+
+# Stage 2: Build the API and all modules
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build-api
 WORKDIR /src
 
-# Copy solution and project files
 COPY Postkit.sln ./
 COPY Postkit.API/Postkit.API.csproj Postkit.API/
 COPY Postkit.Comments/Postkit.Comments.csproj Postkit.Comments/
@@ -27,19 +27,19 @@ COPY Postkit.UI/Postkit.UI.csproj Postkit.UI/
 
 RUN dotnet restore
 
-# Copy all source code
 COPY . .
 
-# Copy Blazor UI output to Postkit.API/wwwroot
+# Copy UI wwwroot from build-ui stage
 RUN rm -rf Postkit.API/wwwroot
 RUN mkdir -p Postkit.API/wwwroot
-RUN cp -r /out-ui/wwwroot/* Postkit.API/wwwroot/
+COPY --from=build-ui /out-ui/wwwroot/ Postkit.API/wwwroot/
 
-# Publish the API
+# Publish API
 WORKDIR /src/Postkit.API
 RUN dotnet publish -c Release -o /app/publish /p:UseAppHost=false
 
-# Stage 3: Final runtime image
+
+# Stage 3: Final image
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
 COPY --from=build-api /app/publish ./
