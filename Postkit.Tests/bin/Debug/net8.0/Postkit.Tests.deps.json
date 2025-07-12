@@ -1931,14 +1931,6 @@
         "runtime": {
           "Postkit.Shared.dll": {}
         }
-      },
-      "Poskit.Posts/1.0.0.0": {
-        "runtime": {
-          "Poskit.Posts.dll": {
-            "assemblyVersion": "1.0.0.0",
-            "fileVersion": "1.0.0.0"
-          }
-        }
       }
     }
   },
@@ -3245,11 +3237,6 @@
     },
     "Postkit.Shared/1.0.0": {
       "type": "project",
-      "serviceable": false,
-      "sha512": ""
-    },
-    "Poskit.Posts/1.0.0.0": {
-      "type": "reference",
       "serviceable": false,
       "sha512": ""
     }
