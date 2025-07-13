@@ -21,7 +21,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Postkit.Notifications", "Po
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Postkit.Infrastructure", "Postkit.Infrastructure\Postkit.Infrastructure.csproj", "{D031D8F6-AA67-48CE-9718-D5CB6D3EA0EA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Postkit.UI", "Postkit.UI\Postkit.UI.csproj", "{EE761D52-537D-4D2F-9432-12222A6EDE0B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Postkit.UI", "Postkit.UI\Postkit.UI.csproj", "{337E72BC-A4EF-43AA-958D-4E60EFB80FC2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -65,10 +65,10 @@ Global
 		{D031D8F6-AA67-48CE-9718-D5CB6D3EA0EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D031D8F6-AA67-48CE-9718-D5CB6D3EA0EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D031D8F6-AA67-48CE-9718-D5CB6D3EA0EA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EE761D52-537D-4D2F-9432-12222A6EDE0B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EE761D52-537D-4D2F-9432-12222A6EDE0B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EE761D52-537D-4D2F-9432-12222A6EDE0B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EE761D52-537D-4D2F-9432-12222A6EDE0B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{337E72BC-A4EF-43AA-958D-4E60EFB80FC2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{337E72BC-A4EF-43AA-958D-4E60EFB80FC2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{337E72BC-A4EF-43AA-958D-4E60EFB80FC2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{337E72BC-A4EF-43AA-958D-4E60EFB80FC2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

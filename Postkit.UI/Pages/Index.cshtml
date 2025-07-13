@@ -1,0 +1,53 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Postkit";
+}
+<div class="container mt-5">
+    <h1 class="display-4 fw-bold mb-3">Welcome to Postkit</h1>
+    <p class="lead text-secondary mb-4">
+        Postkit is your plug-and-play ASP.NET Core API for posts, comments, reactions, and live notifications.
+    </p>
+
+    <!-- Features Section -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <h2 class="h5 fw-semibold mb-3">Key Features</h2>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item"><span class="text-primary">✔</span> JWT Auth with ASP.NET Core Identity</li>
+                <li class="list-group-item"><span class="text-primary">✔</span> Role-based access control (Admin, User)</li>
+                <li class="list-group-item"><span class="text-primary">✔</span> Modular per-feature architecture (Post, Comment, Reaction, Notification)</li>
+                <li class="list-group-item"><span class="text-primary">✔</span> Real-time updates via SignalR</li>
+                <li class="list-group-item"><span class="text-primary">✔</span> Clean controller → service → repository pattern</li>
+                <li class="list-group-item"><span class="text-primary">✔</span> Integrated Swagger & Serilog</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="mb-4">
+        <a class="btn btn-dark me-3" href="/docs">🚀 View API Docs</a>
+    </div>
+
+    <!-- Architecture Section -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <h2 class="h5 fw-semibold mb-3">Architecture Overview</h2>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item"><strong>API:</strong> ASP.NET Core Web API (<code>Postkit.API</code>)</li>
+                <li class="list-group-item"><strong>Features:</strong> Modular libraries (Posts, Comments, etc.)</li>
+                <li class="list-group-item"><strong>Data:</strong> EF Core in <code>Postkit.Infrastructure</code></li>
+                <li class="list-group-item"><strong>Shared:</strong> DTOs and logic in <code>Postkit.Shared</code></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <p class="text-muted small">
+        View the source on
+        <a href="https://github.com/roneldc/PostkitAPI.git" target="_blank" class="text-decoration-underline text-primary">GitHub</a>
+        · Licensed under MIT
+    </p>
+</div>
+
+    

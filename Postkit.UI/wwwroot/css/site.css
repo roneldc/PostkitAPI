@@ -1,0 +1,69 @@
+﻿@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&display=swap');
+
+html, body {
+    font-family: 'IBM Plex Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+/* Two column colors */
+.bg-white-custom {
+    background-color: #ffffff !important;
+    color: #000000;
+}
+
+.bg-dark-custom {
+    background-color: #1f1f1f !important;
+    color: #ffffff;
+}
+
+a, .btn-link {
+    color: #006bb7;
+}
+
+.btn-primary {
+    color: #fff;
+    background-color: #1b6ec2;
+    border-color: #1861ac;
+}
+
+.btn:focus,
+.btn:active:focus,
+.btn-link.nav-link:focus,
+.form-control:focus,
+.form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+h1:focus {
+    outline: none;
+}
+
+/* Navbar styling */
+.navbar-incognito {
+    background-color: #1f1f1f;
+    border-bottom: 1px solid #2c2c2c;
+}
+
+.navbar-incognito .navbar-brand,
+.navbar-incognito .nav-link {
+    color: #e0e0e0;
+}
+
+.navbar-incognito .nav-link:hover,
+.navbar-incognito .navbar-brand:hover {
+    color: #ffffff;
+}
+
+.navbar-incognito .nav-link.active {
+    color: #ffffff;
+    font-weight: bold;
+}
+
+.logo {
+    height: 24px;
+    width: 24px;
+}
+
+.btn-black {
+    background-color: #1f1f1f;
+    color: #ffffff;
+}

@@ -1,0 +1,18 @@
+# Stage 1: Build the Razor UI
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
+
+COPY Postkit.UI/Postkit.UI.csproj Postkit.UI/
+RUN dotnet restore Postkit.UI/Postkit.UI.csproj
+
+COPY Postkit.UI/ Postkit.UI/
+WORKDIR /src/Postkit.UI
+RUN dotnet publish -c Release -o /app/publish /p:UseAppHost=false
+
+# Stage 2: Runtime
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
+WORKDIR /app
+COPY --from=build /app/publish ./
+
+EXPOSE 80
+ENTRYPOINT ["dotnet", "Postkit.UI.dll"]

@@ -142,11 +142,7 @@ if (app.Environment.IsDevelopment())
     }
 }
 
-app.UseDefaultFiles();
-app.UseStaticFiles();
-
 app.UseExceptionHandler(_ => { });
-app.UseHttpsRedirection();
 
 app.UseCors("ConfiguredCors");
 
@@ -158,7 +154,5 @@ app.UseAuthorization();
 app.MapHub<NotificationHub>("/hubs/notifications");
 
 app.MapControllers();
-
-app.MapFallbackToFile("index.html");
 
 app.Run();
