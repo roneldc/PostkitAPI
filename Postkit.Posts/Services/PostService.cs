@@ -5,6 +5,9 @@ using Poskit.Posts.Interfaces;
 using Poskit.Posts.Mappers;
 using Poskit.Posts.Queries;
 using Postkit.Identity.Interfaces;
+using Postkit.Posts.Interfaces;
+using Postkit.Posts.Services;
+using Postkit.Shared.Models;
 using Postkit.Shared.Responses;
 
 namespace Poskit.Posts.Services
@@ -14,12 +17,14 @@ namespace Poskit.Posts.Services
         private readonly IPostRepository postRepository;
         private readonly ILogger<PostService> logger;
         private readonly ICurrentUserService currentUserService;
+        private readonly ICloudinaryService cloudinaryService;
 
-        public PostService(IPostRepository postRepository, ILogger<PostService> logger, ICurrentUserService currentUserService)
+        public PostService(IPostRepository postRepository, ILogger<PostService> logger, ICurrentUserService currentUserService, ICloudinaryService cloudinaryService)
         {
             this.postRepository = postRepository;
             this.logger = logger;
             this.currentUserService = currentUserService;
+            this.cloudinaryService = cloudinaryService;
         }
         public async Task<PagedResponse<PostDto>> GetAllPostsAsync(PostQuery query)
         {
@@ -115,6 +120,22 @@ namespace Poskit.Posts.Services
             post.ApplicationClientId = currentUserService.ApplicationClientId;
             post.CreatedAt = DateTime.UtcNow;
 
+            if (dto.Media is not null)
+            {
+                try
+                {
+                    var mediaUrl = await cloudinaryService.UploadMediaAsync(dto.Media);
+                    post.MediaUrl = mediaUrl;
+                    post.MediaType = dto.Media.ContentType.StartsWith("video") ? "video" : "image";
+                    logger.LogInformation("Media uploaded: {Type} -> {Url}", post.MediaType, mediaUrl);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Failed to upload media for post");
+                    throw;
+                }
+            }
+
             var addedPost = await postRepository.AddAsync(post);
             return addedPost.ToDTO();
         }
@@ -146,6 +167,22 @@ namespace Poskit.Posts.Services
             existingPost.Title = dto.Title;
             existingPost.Content = dto.Content;
             existingPost.UpdatedAt = DateTime.UtcNow;
+
+            if (dto.Media is not null)
+            {
+                try
+                {
+                    var mediaUrl = await cloudinaryService.UploadMediaAsync(dto.Media);
+                    existingPost.MediaUrl = mediaUrl;
+                    existingPost.MediaType = dto.Media.ContentType.StartsWith("video") ? "video" : "image";
+                    logger.LogInformation("Media uploaded: {Type} -> {Url}", existingPost.MediaType, mediaUrl);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Failed to upload media for post");
+                    throw;
+                }
+            }
 
             await postRepository.UpdateAsync(existingPost);
             return true;

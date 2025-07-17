@@ -3,6 +3,7 @@ using Postkit.Identity.Interfaces;
 using Postkit.Notifications.Interfaces;
 using Postkit.Reactions.DTOs;
 using Postkit.Reactions.Interfaces;
+using Postkit.Shared.Constants;
 using Postkit.Shared.Models;
 
 namespace Postkit.Reactions.Services
@@ -49,7 +50,8 @@ namespace Postkit.Reactions.Services
                 };
                 await reactionRepo.AddAsync(reaction);
 
-                await notificationService.NotifyPostReactionAsync(userId, dto.PostId);
+                await notificationService.NotifyPostReactionAsync(dto.PostUserId, dto.PostId, NotificationTypeNames.Reaction);
+
             }
 
             var updatedCount = await reactionRepo.CountByPostAndTypeAsync(dto.PostId, dto.ReactionType, applicationClientId);

@@ -15,14 +15,10 @@ namespace Postkit.Notifications.Repositories
             this.context = context;
             this.logger = logger;
         }
-        public async Task<List<Notification>> GetAllAsync(string userId)
+        public IQueryable<Notification> GetAllAsync()
         {
-            logger.LogInformation("Fetching all notifications for user with ID: {UserId}", userId);
-
-            return await context.Notifications
-           .Where(n => n.UserId == userId)
-           .OrderByDescending(n => n.CreatedAt)
-           .ToListAsync();
+            logger.LogInformation("Fetching all notifications");
+            return context.Notifications.AsQueryable();
         }
 
         public async Task<List<Notification>> GetUnreadAsync(string userId)

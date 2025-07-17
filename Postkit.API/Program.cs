@@ -1,7 +1,9 @@
+using Asp.Versioning;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using Poskit.Posts.Interfaces;
 using Poskit.Posts.Repository;
 using Poskit.Posts.Services;
@@ -16,6 +18,8 @@ using Postkit.Notifications.Hubs;
 using Postkit.Notifications.Interfaces;
 using Postkit.Notifications.Repositories;
 using Postkit.Notifications.Services;
+using Postkit.Posts.Interfaces;
+using Postkit.Posts.Services;
 using Postkit.Reactions.Interfaces;
 using Postkit.Reactions.Repositories;
 using Postkit.Reactions.Services;
@@ -29,8 +33,40 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo { Title = "PostkitAPI", Version = "v1" });
 
+    // Add JWT Authentication
+    var securityScheme = new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Enter JWT Bearer token **_only_** (without 'Bearer ' prefix)."
+    };
+
+    options.AddSecurityDefinition("Bearer", securityScheme);
+
+    var securityRequirement = new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Id = "Bearer",
+                    Type = ReferenceType.SecurityScheme
+                }
+            },
+            Array.Empty<string>()
+        }
+    };
+
+    options.AddSecurityRequirement(securityRequirement);
+});
 builder.Services.AddDbContext<PostkitDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("PostkitApiConnection")));
 
@@ -60,6 +96,7 @@ builder.Services.AddScoped<IReactionRepository, ReactionRepository>();
 builder.Services.AddScoped<IReactionService, ReactionService>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
 
 builder.Services.AddAuthentication(options =>
 {
@@ -118,6 +155,13 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod()
               .AllowCredentials();
     });
+});
+
+builder.Services.AddApiVersioning(options =>
+{
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.DefaultApiVersion = new ApiVersion(1, 0);
+    options.ReportApiVersions = true;
 });
 
 var app = builder.Build();

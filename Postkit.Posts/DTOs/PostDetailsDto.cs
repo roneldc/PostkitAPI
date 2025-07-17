@@ -15,5 +15,7 @@ namespace Poskit.Posts.DTOs
         public DateTime? UpdatedAt { get; set; }
         public List<CommentDto>? Comments { get; set; }
         public bool IsUserReacted { get; set; }
+        public string? MediaUrl { get; set; }
+        public string? MediaType { get; set; }
     }
 }

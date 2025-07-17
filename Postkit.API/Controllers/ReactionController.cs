@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Postkit.Reactions.DTOs;
@@ -7,7 +8,8 @@ using Postkit.Shared.Responses;
 namespace Postkit.API.Controllers
 {
     [ApiController]
-    [Route("api/reactions")]
+    [Route("api/v{version:apiVersion}/reactions")]
+    [ApiVersion("1.0")]
     public class ReactionController : ControllerBase
     {
         private readonly IReactionService reactionService;

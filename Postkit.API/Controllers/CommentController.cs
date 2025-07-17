@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Postkit.Comments.DTOs;
@@ -7,7 +8,8 @@ using Postkit.Shared.Responses;
 namespace Postkit.API.Controllers
 {
     [ApiController]
-    [Route("api")]
+    [Route("api/v{version:apiVersion}")]
+    [ApiVersion("1.0")]
     public class CommentController : ControllerBase
     {
         private readonly ICommentService commentService;

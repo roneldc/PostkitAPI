@@ -13,5 +13,7 @@
         public List<Reaction> Reactions { get; set; } = new List<Reaction>();
         public Guid ApplicationClientId { get; set; }
         public ApplicationClient? AppClient { get; set; }
+        public string? MediaUrl { get; set; }
+        public string? MediaType { get; set; }
     }
 }
