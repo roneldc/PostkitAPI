@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Postkit.Identity.DTOs.Account;
@@ -10,7 +11,8 @@ using Postkit.Shared.Responses;
 namespace Postkit.API.Controllers
 {
     [ApiController]
-    [Route("api/accounts")]
+    [Route("api/v{version:apiVersion}/accounts")]
+    [ApiVersion("1.0")]
     public class AccountController : ControllerBase
     {
         private readonly IAccountService accountService;

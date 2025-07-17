@@ -26,7 +26,9 @@ namespace Poskit.Posts.Mappers
                 IsUserReacted = !string.IsNullOrEmpty(userId) &&
                         post.Reactions.Any(r =>
                             r.TargetType == TargetTypeNames.Post &&
-                            r.UserId == userId)
+                            r.UserId == userId),
+                MediaUrl = post.MediaUrl,
+                MediaType = post.MediaType
             };
         }
 
@@ -60,8 +62,9 @@ namespace Poskit.Posts.Mappers
                 IsUserReacted = !string.IsNullOrEmpty(userId) &&
                         post.Reactions.Any(r =>
                             r.TargetType == TargetTypeNames.Post &&
-                            r.UserId == userId)
-
+                            r.UserId == userId),
+                MediaUrl = post.MediaUrl,
+                MediaType = post.MediaType
             };
         }
     }

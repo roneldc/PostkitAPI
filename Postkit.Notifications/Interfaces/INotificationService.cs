@@ -1,14 +1,16 @@
 ﻿using Postkit.Notifications.DTOs;
+using Postkit.Notifications.Queries;
+using Postkit.Shared.Responses;
 
 namespace Postkit.Notifications.Interfaces
 {
     public interface INotificationService
     {
-        Task<List<NotificationDto>> GetAllAsync();
+        Task<PagedResponse<NotificationDto>> GetAllAsync(NotificationQuery query);
         Task<List<NotificationDto>> GetUnreadAsync();
         Task MarkAsReadAsync(Guid id);
         Task MarkAllAsReadAsync();
-        Task NotifyPostCommentAsync(string postUserId, Guid postId);
-        Task NotifyPostReactionAsync(string commenterUserId, Guid postId);
+        Task NotifyPostCommentAsync(string postUserId, Guid postId, string notificationType);
+        Task NotifyPostReactionAsync(string postUserId, Guid postId, string notificationType);
     }
 }

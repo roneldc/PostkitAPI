@@ -1,4 +1,6 @@
-﻿namespace Poskit.Posts.DTOs
+﻿using Microsoft.AspNetCore.Http;
+
+namespace Poskit.Posts.DTOs
 {
     public class PostDto
     {
@@ -12,5 +14,8 @@
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public bool IsUserReacted { get; set; }
+        public string? MediaUrl { get; set; }
+        public string? MediaType { get; set; }
+
     }
 }

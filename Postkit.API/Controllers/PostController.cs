@@ -4,11 +4,13 @@ using Poskit.Posts.DTOs;
 using Poskit.Posts.Interfaces;
 using Postkit.Shared.Responses;
 using Poskit.Posts.Queries;
+using Asp.Versioning;
 
 namespace Postkit.API.Controllers
 {
     [ApiController]
-    [Route("api/posts")]
+    [Route("api/v{version:apiVersion}/posts")]
+    [ApiVersion("1.0")]
     public class PostController : ControllerBase
     {
         private readonly IPostService postService;
@@ -57,7 +59,8 @@ namespace Postkit.API.Controllers
 
         [HttpPost]
         [Authorize(Policy = "AdminOrUser")]
-        public async Task<IActionResult> CreatePost([FromBody] CreatePostDto dto)
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> CreatePost([FromForm] CreatePostDto dto)
         {
             logger.LogInformation("POST api/posts endpoint called with data: {Dto}", dto);
 
@@ -68,7 +71,8 @@ namespace Postkit.API.Controllers
 
         [HttpPut("{id}")]
         [Authorize(Policy = "AdminOrUser")]
-        public async Task<IActionResult> UpdatePost([FromRoute] Guid id, [FromBody] CreatePostDto dto)
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> UpdatePost([FromRoute] Guid id, [FromForm] CreatePostDto dto)
         {
             logger.LogInformation("PUT api/posts/{Id} endpoint called", id);
 

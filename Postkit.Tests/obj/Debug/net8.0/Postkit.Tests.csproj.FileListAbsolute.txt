@@ -183,3 +183,8 @@ C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\obj\Debug\net8.0\refint\Po
 C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\obj\Debug\net8.0\Postkit.Tests.pdb
 C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\obj\Debug\net8.0\Postkit.Tests.genruntimeconfig.cache
 C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\obj\Debug\net8.0\ref\Postkit.Tests.dll
+C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\CloudinaryDotNet.dll
+C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\Asp.Versioning.Abstractions.dll
+C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\Asp.Versioning.Http.dll
+C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\Asp.Versioning.Mvc.dll
+C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\Asp.Versioning.Mvc.ApiExplorer.dll

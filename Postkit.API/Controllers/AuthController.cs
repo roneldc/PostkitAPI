@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Postkit.Identity.DTOs.Auth;
@@ -7,7 +8,8 @@ using Postkit.Shared.Responses;
 namespace Postkit.API.Controllers
 {
     [ApiController]
-    [Route("api/auth")]
+    [Route("api/v{version:apiVersion}/auth")]
+    [ApiVersion("1.0")]
     public class AuthController : ControllerBase
     {
         private readonly IAuthService authService;

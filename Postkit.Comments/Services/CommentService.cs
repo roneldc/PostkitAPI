@@ -6,6 +6,7 @@ using Postkit.Comments.Mappers;
 using Postkit.Comments.Queries;
 using Postkit.Identity.Interfaces;
 using Postkit.Notifications.Interfaces;
+using Postkit.Shared.Constants;
 using Postkit.Shared.Responses;
 
 namespace Postkit.Comments.Services
@@ -67,7 +68,7 @@ namespace Postkit.Comments.Services
             comment.ApplicationClientId = currentUserService.ApplicationClientId;
             var addedComment = await commentRepository.AddAsync(comment);
 
-            await notificationService.NotifyPostCommentAsync(dto.PostUserId, dto.PostId);
+            await notificationService.NotifyPostCommentAsync(dto.PostUserId, dto.PostId, NotificationTypeNames.Comment);
 
             return addedComment.ToDto();
         }

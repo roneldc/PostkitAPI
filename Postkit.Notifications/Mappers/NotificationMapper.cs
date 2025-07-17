@@ -13,6 +13,7 @@ namespace Postkit.Notifications.Mappers
                 Id = notification.Id,
                 Message = notification.Message,
                 IsRead = notification.IsRead,
+                PostId = notification.PostId,
                 CreatedAt = notification.CreatedAt
             };
         }
@@ -24,8 +25,10 @@ namespace Postkit.Notifications.Mappers
             return new Notification
             {
                 UserId = dto.UserId,
+                Username = dto.Username,
                 Message = dto.Message,
-                PostId = dto.PostId
+                PostId = dto.PostId,
+                Type = dto.NotificationType
             };
         }
 

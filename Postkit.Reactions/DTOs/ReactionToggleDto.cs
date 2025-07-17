@@ -9,6 +9,8 @@ namespace Postkit.Reactions.DTOs
         [Required]
         public Guid PostId { get; set; }
         [Required]
+        public string PostUserId { get; set; } = string.Empty;
+        [Required]
         [ValidConstantValue(typeof(ReactionTypeNames))]
         public string ReactionType { get; set; } = string.Empty;
         [ValidConstantValue(typeof(TargetTypeNames))]

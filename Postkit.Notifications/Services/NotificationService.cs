@@ -1,10 +1,13 @@
 ﻿using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Postkit.Identity.Interfaces;
 using Postkit.Notifications.DTOs;
 using Postkit.Notifications.Hubs;
 using Postkit.Notifications.Interfaces;
 using Postkit.Notifications.Mappers;
+using Postkit.Notifications.Queries;
+using Postkit.Shared.Responses;
 namespace Postkit.Notifications.Services
 {
     public class NotificationService : INotificationService
@@ -22,13 +25,33 @@ namespace Postkit.Notifications.Services
             this.currentUserService = currentUserService;
             this.hubContext = hubContext;
         }
-        public async Task<List<NotificationDto>> GetAllAsync()
+        public async Task<PagedResponse<NotificationDto>> GetAllAsync(NotificationQuery query)
         {
             var userId = currentUserService.UserId ?? throw new UnauthorizedAccessException();
 
             logger.LogInformation("Getting all notification with User ID: {Id}", userId);
-            var notifications = await repository.GetAllAsync(userId);
-            return notifications.ToDtoList();
+            var notificationsQuery = repository.GetAllAsync();
+            notificationsQuery = query.ApplyFilters(notificationsQuery);
+            var totalCount = await notificationsQuery.CountAsync();
+            var pagedNotifications = await notificationsQuery
+                 .Where(n => n.UserId == userId)
+                 .OrderByDescending(n => n.CreatedAt)
+                 .Skip((query.Page - 1) * query.PageSize)
+                 .Take(query.PageSize)
+                 .ToListAsync();
+
+            var notificationDtos = pagedNotifications.Select(n => n.ToDto()).ToList();
+            return new PagedResponse<NotificationDto>
+            {
+                Data = notificationDtos,
+                Pagination = new PaginationMetadata
+                {
+                    CurrentPage = query.Page,
+                    PageSize = query.PageSize,
+                    TotalItems = totalCount,
+                    TotalPages = (int)Math.Ceiling((double)totalCount / query.PageSize)
+                }
+            };
         }
 
         public async Task<List<NotificationDto>> GetUnreadAsync()
@@ -54,36 +77,42 @@ namespace Postkit.Notifications.Services
             await repository.MarkAllAsReadAsync(userId);
         }
 
-        public async Task NotifyPostCommentAsync(string postUserId, Guid postId)
+        public async Task NotifyPostCommentAsync(string postUserId, Guid postId, string notificationType)
         {
             var userId = currentUserService.UserId ?? throw new UnauthorizedAccessException();
             if (postUserId == userId) return;
 
-            var message = $"💬 {currentUserService.Username} commented on your post.";
+            var message = $"{currentUserService.Username} commented on your post.";
             var notification = new CreateNotificationDto
             {
                 UserId = postUserId,
+                Username = currentUserService.Username!,
                 PostId = postId,
-                Message = message
+                Message = message,
+                NotificationType = notificationType
             };
 
             await repository.AddAsync(notification.ToModel());
-            await hubContext.Clients.User(postUserId).SendAsync("ReceiveNotification", message);
+            await hubContext.Clients.User(postUserId).SendAsync("ReceiveNotification", notification);
         }
 
-        public async Task NotifyPostReactionAsync(string commenterUserId, Guid postId)
+        public async Task NotifyPostReactionAsync(string postUserId, Guid postId, string notificationType)
         {
             var userId = currentUserService.UserId ?? throw new UnauthorizedAccessException();
-            if (userId == commenterUserId) return;
+            if (postUserId == userId) return;
 
+            var message = $"{currentUserService.Username} reacted to your post.";
             var notification = new CreateNotificationDto
             {
-                UserId = commenterUserId,
+                UserId = postUserId,
+                Username = currentUserService.Username!,
                 PostId = postId,
-                Message = "reacted on your post"
+                Message = message,
+                NotificationType = notificationType
             };
 
             await repository.AddAsync(notification.ToModel());
+            await hubContext.Clients.User(postUserId).SendAsync("ReceiveNotification", notification);
         }
     }
 }

@@ -11,6 +11,7 @@ namespace Poskit.Posts.Queries
         public string? Search { get; set; }
         public Guid? PostId { get; set; }
         public string? UserId { get; set; }
+        public bool SortByTopReactions { get; set; } = false;
 
         public IQueryable<Post> ApplyFilters(IQueryable<Post> query)
         {
@@ -30,6 +31,13 @@ namespace Poskit.Posts.Queries
                     p.Title.ToLower().Contains(lowerSearch) ||
                     p.Content.ToLower().Contains(lowerSearch) ||
                     p.User!.UserName!.ToLower().Contains(lowerSearch));
+            }
+
+            if (SortByTopReactions)
+            {
+                query = query
+                    .Where(p => p.Reactions.Any()) // remove posts with 0 reactions
+                    .OrderByDescending(p => p.Reactions.Count);
             }
 
             return query;
