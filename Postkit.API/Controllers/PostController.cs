@@ -27,8 +27,8 @@ namespace Postkit.API.Controllers
         public async Task<IActionResult> GetAllPosts([FromQuery] PostQuery query)
         {
             logger.LogInformation("GET api/posts called with query: {Query}", query);
-
-            var posts = await postService.GetAllPostsAsync(query);
+            var apiClientId = (Guid)HttpContext.Items["ApiClientId"]!;
+            var posts = await postService.GetAllPostsAsync(query, apiClientId);
             return Ok(ApiResponse<PagedResponse<PostDto>>.SuccessResponse(posts, "Posts retrieved successfully."));
         }
 
@@ -37,13 +37,13 @@ namespace Postkit.API.Controllers
         public async Task<IActionResult> GetPostDetails([FromQuery] PostQuery query)
         {
             logger.LogInformation("GET api/posts called with query: {Query}", query);
-
-            var posts = await postService.GetAllPostDetailsAsync(query);
+            var apiClientId = (Guid)HttpContext.Items["ApiClientId"]!;
+            var posts = await postService.GetAllPostDetailsAsync(query, apiClientId);
             return Ok(ApiResponse<PagedResponse<PostDetailsDto>>.SuccessResponse(posts, "Posts retrieved successfully."));
         }
 
         [HttpGet("{id}")]
-        [AllowAnonymous]
+        [Authorize]
         public async Task<IActionResult> GetPostById([FromRoute] Guid id)
         {
             logger.LogInformation("GET api/posts/{Id} endpoint called", id);
@@ -74,7 +74,7 @@ namespace Postkit.API.Controllers
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> UpdatePost([FromRoute] Guid id, [FromForm] CreatePostDto dto)
         {
-            logger.LogInformation("PUT api/posts/{Id} endpoint called", id);
+            logger.LogInformation("POST api/posts/{Id} endpoint called", id);
 
             var updatedPost = await postService.UpdatePostAsync(id, dto);
             return updatedPost

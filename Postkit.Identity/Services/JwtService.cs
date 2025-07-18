@@ -24,7 +24,7 @@ namespace Postkit.Identity.Services
                 new Claim(ClaimTypes.Email, user.Email!),
                 new Claim(ClaimTypes.Name, user.UserName!),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim("ApplicationClientId", user.ApplicationClientId.ToString())
+                new Claim("ApiClientId", user.ApiClientId.ToString())
             };
 
             foreach (var role in roles)

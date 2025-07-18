@@ -11,8 +11,8 @@
         public ApplicationUser? User { get; set; }
         public List<Comment> Comments { get; set; } = new List<Comment>();
         public List<Reaction> Reactions { get; set; } = new List<Reaction>();
-        public Guid ApplicationClientId { get; set; }
-        public ApplicationClient? AppClient { get; set; }
+        public Guid ApiClientId { get; set; }
+        public ApiClient? ApiClient { get; set; }
         public string? MediaUrl { get; set; }
         public string? MediaType { get; set; }
     }

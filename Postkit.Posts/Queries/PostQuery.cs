@@ -6,8 +6,6 @@ namespace Poskit.Posts.Queries
     {
         public int Page { get; set; } = 1;
         public int PageSize { get; set; } = 10;
-
-        public Guid? ApplicationClientId { get; set; }
         public string? Search { get; set; }
         public Guid? PostId { get; set; }
         public string? UserId { get; set; }
@@ -15,9 +13,6 @@ namespace Poskit.Posts.Queries
 
         public IQueryable<Post> ApplyFilters(IQueryable<Post> query)
         {
-            if (ApplicationClientId.HasValue && ApplicationClientId.Value != Guid.Empty)
-                query = query.Where(p => p.ApplicationClientId == ApplicationClientId.Value);
-
             if (PostId.HasValue && PostId.Value != Guid.Empty)
                 query = query.Where(p => p.Id == PostId.Value);
 
@@ -36,7 +31,7 @@ namespace Poskit.Posts.Queries
             if (SortByTopReactions)
             {
                 query = query
-                    .Where(p => p.Reactions.Any()) // remove posts with 0 reactions
+                    .Where(p => p.Reactions.Any())
                     .OrderByDescending(p => p.Reactions.Count);
             }
 

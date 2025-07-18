@@ -9,7 +9,7 @@
         public Post? Post { get; set; }
         public string UserId { get; set; } = string.Empty;
         public ApplicationUser? User { get; set; }
-        public Guid ApplicationClientId { get; set; }
-        public ApplicationClient? ApplicationClient { get; set; }
+        public Guid ApiClientId { get; set; }
+        public ApiClient? ApiClient { get; set; }
     }
 }

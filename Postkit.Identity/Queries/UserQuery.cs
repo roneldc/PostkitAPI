@@ -9,7 +9,7 @@ namespace Postkit.Identity.Queries
         public string? Email { get; set; }
         public int Page { get; set; } = 1;
         public int PageSize { get; set; } = 10;
-        public Guid? ApplicationId { get; set; }
+        public Guid? ApiClientId { get; set; }
 
         public IQueryable<ApplicationUser> ApplyFilters(IQueryable<ApplicationUser> query)
         {
@@ -23,9 +23,9 @@ namespace Postkit.Identity.Queries
                 query = query.Where(h => EF.Functions.Like(h.Email, $"%{Email}%"));
             }
 
-            if (ApplicationId.HasValue)
+            if (ApiClientId.HasValue)
             {
-                query = query.Where(u => u.ApplicationClientId == ApplicationId);
+                query = query.Where(u => u.ApiClientId == ApiClientId);
             }
 
             return query.Skip((Page - 1) * PageSize).Take(PageSize);

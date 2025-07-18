@@ -90,7 +90,7 @@ namespace Postkit.Identity.Services
         public async Task<bool> AssignRoleAsync(AssignRoleDto dto)
         {
             var user = await userManager.FindByIdAsync(dto.UserId);
-            if (user == null || user.ApplicationClientId != currentUserService.ApplicationClientId)
+            if (user == null || user.ApiClientId != currentUserService.ApiClientId)
             {
                 logger.LogWarning("User with ID: {UserId} not found.", dto.UserId);
                 return false;
