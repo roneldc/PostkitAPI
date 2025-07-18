@@ -29,9 +29,9 @@ namespace Postkit.Reactions.Services
         {
             logger.LogInformation("Toggling reaction for PostId: {PostId}", dto.PostId);
             var userId = currentUserService.UserId ?? throw new UnauthorizedAccessException();
-            var applicationClientId = currentUserService.ApplicationClientId;
+            var apiClientId = currentUserService.ApiClientId;
 
-            var existingReaction = await reactionRepo.GetByUserPostAndTypeAsync(userId, dto.PostId, dto.ReactionType, applicationClientId);
+            var existingReaction = await reactionRepo.GetByUserPostAndTypeAsync(userId, dto.PostId, dto.ReactionType, apiClientId);
 
             if (existingReaction != null)
             {
@@ -46,7 +46,7 @@ namespace Postkit.Reactions.Services
                     TargetType = dto.TargetType,
                     Type = dto.ReactionType,
                     CreatedAt = DateTime.UtcNow,
-                    ApplicationClientId = applicationClientId
+                    ApiClientId = apiClientId
                 };
                 await reactionRepo.AddAsync(reaction);
 
@@ -54,7 +54,7 @@ namespace Postkit.Reactions.Services
 
             }
 
-            var updatedCount = await reactionRepo.CountByPostAndTypeAsync(dto.PostId, dto.ReactionType, applicationClientId);
+            var updatedCount = await reactionRepo.CountByPostAndTypeAsync(dto.PostId, dto.ReactionType, apiClientId);
             var userHasReacted = existingReaction == null;
 
             return new ReactionDto
@@ -68,8 +68,8 @@ namespace Postkit.Reactions.Services
         {
             var userId = currentUserService.UserId ?? throw new UnauthorizedAccessException();
 
-            logger.LogInformation("Checking if user '{UserId}' has reacted with type '{Type}' on post '{PostId}' and ApplicationClient Id {ApplicationClientId}", userId, type, postId, currentUserService.ApplicationClientId);
-            return await reactionRepo.ExistsAsync(postId, userId, type, currentUserService.ApplicationClientId);
+            logger.LogInformation("Checking if user '{UserId}' has reacted with type '{Type}' on post '{PostId}' and ApiClientId Id {ApiClientId}", userId, type, postId, currentUserService.ApiClientId);
+            return await reactionRepo.ExistsAsync(postId, userId, type, currentUserService.ApiClientId);
         }
     }
 }

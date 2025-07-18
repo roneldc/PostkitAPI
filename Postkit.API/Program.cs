@@ -192,6 +192,8 @@ app.UseCors("ConfiguredCors");
 
 app.UseRouting();
 
+app.UseMiddleware<ApiKeyMiddleware>();
+
 app.UseAuthentication();
 app.UseAuthorization();
 

@@ -6,8 +6,8 @@ namespace Poskit.Posts.Interfaces
 {
     public interface IPostService
     {
-        Task<PagedResponse<PostDto>> GetAllPostsAsync(PostQuery query);
-        Task<PagedResponse<PostDetailsDto>> GetAllPostDetailsAsync(PostQuery query);
+        Task<PagedResponse<PostDto>> GetAllPostsAsync(PostQuery query, Guid apiClientId);
+        Task<PagedResponse<PostDetailsDto>> GetAllPostDetailsAsync(PostQuery query, Guid apiClientId);
         Task<PostDto?> GetPostByIdAsync(Guid id);
         Task<PostDto> CreatePostAsync(CreatePostDto dto);
         Task<bool> UpdatePostAsync(Guid id, CreatePostDto dto);

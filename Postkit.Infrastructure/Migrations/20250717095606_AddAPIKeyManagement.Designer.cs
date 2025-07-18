@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Postkit.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using Postkit.Infrastructure.Data;
 namespace Postkit.Infrastructure.Migrations
 {
     [DbContext(typeof(PostkitDbContext))]
-    partial class PostkitDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250717095606_AddAPIKeyManagement")]
+    partial class AddAPIKeyManagement
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

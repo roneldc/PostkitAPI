@@ -16,12 +16,12 @@ namespace Postkit.Reactions.Repositories
             this.context = context;
             this.logger = logger;
         }
-        public async Task<Reaction?> GetByUserPostAndTypeAsync(string userId, Guid postId, string type, Guid applicationClientId)
+        public async Task<Reaction?> GetByUserPostAndTypeAsync(string userId, Guid postId, string type, Guid apiClientId)
         {
-            logger.LogInformation("Getting reaction with Post ID: {PostID}, User ID: {userId}, Type: {Type}, applicationClientId: {applicationClientId}", postId, userId, type, applicationClientId);
+            logger.LogInformation("Getting reaction with Post ID: {PostID}, User ID: {userId}, Type: {Type}, ApiClientId: {ApiClientId}", postId, userId, type, apiClientId);
 
             return await context.Reactions
-                .FirstOrDefaultAsync(r => r.PostId == postId && r.UserId == userId && r.Type == type && r.ApplicationClientId == applicationClientId);
+                .FirstOrDefaultAsync(r => r.PostId == postId && r.UserId == userId && r.Type == type && r.ApiClientId == apiClientId);
         }
 
         public async Task AddAsync(Reaction reaction)
@@ -40,17 +40,17 @@ namespace Postkit.Reactions.Repositories
             await context.SaveChangesAsync();
         }
 
-        public async Task<int> CountByPostAndTypeAsync(Guid postId, string type, Guid applicationClientId)
+        public async Task<int> CountByPostAndTypeAsync(Guid postId, string type, Guid apiClientId)
         {
             logger.LogInformation("Counting reactions for PostId: {PostId} with Type: {Type}", postId, type);
-            return await context.Reactions.CountAsync(r => r.PostId == postId && r.Type == type && r.ApplicationClientId == applicationClientId);
+            return await context.Reactions.CountAsync(r => r.PostId == postId && r.Type == type && r.ApiClientId == apiClientId);
         }
 
-        public async Task<bool> ExistsAsync(Guid postId, string userId, string type, Guid applicationClientId)
+        public async Task<bool> ExistsAsync(Guid postId, string userId, string type, Guid apiClientId)
         {
             logger.LogInformation("Checking if reaction exists for PostId: {PostId}, UserId: {UserId}, Type: {Type}", postId, userId, type);
             return await context.Reactions
-                        .AnyAsync(r => r.PostId == postId && r.UserId == userId && r.Type == type && r.ApplicationClientId == applicationClientId);
+                        .AnyAsync(r => r.PostId == postId && r.UserId == userId && r.Type == type && r.ApiClientId == apiClientId);
         }
     }
 }

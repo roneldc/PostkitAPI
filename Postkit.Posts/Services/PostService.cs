@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Poskit.Posts.DTOs;
 using Poskit.Posts.Interfaces;
@@ -26,7 +27,7 @@ namespace Poskit.Posts.Services
             this.currentUserService = currentUserService;
             this.cloudinaryService = cloudinaryService;
         }
-        public async Task<PagedResponse<PostDto>> GetAllPostsAsync(PostQuery query)
+        public async Task<PagedResponse<PostDto>> GetAllPostsAsync(PostQuery query, Guid apiClientId)
         {
             logger.LogInformation("Getting all posts with filters and pagination: {Query}", query);
 
@@ -41,6 +42,7 @@ namespace Poskit.Posts.Services
                 .Include(p => p.User)
                 .Include(p => p.Comments)
                 .Include(p => p.Reactions)
+                .Where(p => p.ApiClientId == apiClientId)
                 .OrderByDescending(p => p.CreatedAt)
                 .Skip((query.Page - 1) * query.PageSize)
                 .Take(query.PageSize)
@@ -61,7 +63,7 @@ namespace Poskit.Posts.Services
             };
         }
 
-        public async Task<PagedResponse<PostDetailsDto>> GetAllPostDetailsAsync(PostQuery query)
+        public async Task<PagedResponse<PostDetailsDto>> GetAllPostDetailsAsync(PostQuery query, Guid apiClientId)
         {
             logger.LogInformation("Getting all post details with filters and pagination: {Query}", query);
             var postsQuery = postRepository.GetPostsQuery();
@@ -76,6 +78,7 @@ namespace Poskit.Posts.Services
                     .ThenInclude(c => c.User)
                 .Include(p => p.User)
                 .Include(p => p.Reactions)
+                .Where(p => p.ApiClientId == apiClientId)
                 .OrderByDescending(p => p.CreatedAt)
                 .Skip((query.Page - 1) * query.PageSize)
                 .Take(query.PageSize)
@@ -117,7 +120,7 @@ namespace Poskit.Posts.Services
 
             var post = dto.ToModel();
             post.UserId = userId;
-            post.ApplicationClientId = currentUserService.ApplicationClientId;
+            post.ApiClientId = currentUserService.ApiClientId;
             post.CreatedAt = DateTime.UtcNow;
 
             if (dto.Media is not null)
@@ -159,9 +162,9 @@ namespace Poskit.Posts.Services
                 throw new UnauthorizedAccessException();
             }
 
-            if (currentUserService?.ApplicationClientId == null || existingPost.ApplicationClientId != currentUserService?.ApplicationClientId)
+            if (currentUserService?.ApiClientId == null || existingPost.ApiClientId != currentUserService?.ApiClientId)
             {
-                logger.LogWarning("Access denied - ApplicationClientId mismatch. CurrentUserService.ApplicationClientId: {UserApplicationClientId}, Post.ApplicationClientId: {PostApplicationClientId}.", currentUserService?.ApplicationClientId, existingPost.ApplicationClientId);
+                logger.LogWarning("Access denied - ApiClientId mismatch. CurrentUserService.ApiClientId: {UserApiClientId}, Post.ApiClientId: {PostApiClientId}.", currentUserService?.ApiClientId, existingPost.ApiClientId);
             }
 
             existingPost.Title = dto.Title;
@@ -207,9 +210,9 @@ namespace Poskit.Posts.Services
                 throw new UnauthorizedAccessException();
             }
 
-            if (currentUserService?.ApplicationClientId == null || post.ApplicationClientId != currentUserService?.ApplicationClientId)
+            if (currentUserService?.ApiClientId == null || post.ApiClientId != currentUserService?.ApiClientId)
             {
-                logger.LogWarning("Access denied - ApplicationClientId mismatch. CurrentUserService.ApplicationClientId: {UserApplicationClientId}, Post.ApplicationClientId: {PostApplicationClientId}.", currentUserService?.ApplicationClientId, post.ApplicationClientId);
+                logger.LogWarning("Access denied - ApiClientId mismatch. CurrentUserService.ApiClientId: {UserApiClientId}, Post.ApiClientId: {PostApiClientId}.", currentUserService?.ApiClientId, post.ApiClientId);
             }
 
             await postRepository.DeleteAsync(post);

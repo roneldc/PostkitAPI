@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Postkit.Shared.Constants;
+using Postkit.Shared.Helpers;
 using Postkit.Shared.Models;
+using System.Security.Cryptography;
 
 namespace Postkit.Infrastructure.Data
 {
@@ -52,7 +54,7 @@ namespace Postkit.Infrastructure.Data
                     UserName = username,
                     Email = email,
                     EmailConfirmed = true,
-                    ApplicationClientId = Guid.Parse(SampleAppId)
+                    ApiClientId = Guid.Parse(SampleAppId)
                 };
 
                 var result = await userManager.CreateAsync(user, password);
@@ -87,7 +89,7 @@ namespace Postkit.Infrastructure.Data
                 Content = "In tomorrow's soccer match between Team A and Team B, I highly recommend placing your bets on Team A. They’ve been dominating lately with strong offensive strategies, while Team B has had a weak defense.",
                 CreatedAt = DateTime.UtcNow,
                 UserId = adminUser.Id,
-                ApplicationClientId = Guid.Parse(SampleAppId),
+                ApiClientId = Guid.Parse(SampleAppId),
                 Comments = new List<Comment>
                 {
                     new Comment
@@ -96,7 +98,7 @@ namespace Postkit.Infrastructure.Data
                         CreatedAt = DateTime.UtcNow,
                         UserId = regularUser.Id,
                         PostId = post1Id,
-                        ApplicationClientId = Guid.Parse(SampleAppId),
+                        ApiClientId = Guid.Parse(SampleAppId),
                     },
                     new Comment
                     {
@@ -104,7 +106,7 @@ namespace Postkit.Infrastructure.Data
                         CreatedAt = DateTime.UtcNow,
                         UserId = adminUser.Id,
                         PostId = post1Id,
-                        ApplicationClientId = Guid.Parse(SampleAppId),
+                        ApiClientId = Guid.Parse(SampleAppId),
                     }
                 }
             };
@@ -119,7 +121,7 @@ namespace Postkit.Infrastructure.Data
                 Content = "I placed a $200 bet on a basketball game last week, but unfortunately, my team lost. Here are the key lessons learned: 1) Always check player injuries before betting. 2) Never bet emotionally.",
                 CreatedAt = DateTime.UtcNow,
                 UserId = regularUser.Id,
-                ApplicationClientId = Guid.Parse(SampleAppId),
+                ApiClientId = Guid.Parse(SampleAppId),
                 Comments = new List<Comment>
             {
                 new Comment
@@ -128,7 +130,7 @@ namespace Postkit.Infrastructure.Data
                     CreatedAt = DateTime.UtcNow,
                     UserId = adminUser.Id,
                     PostId = post2Id,
-                    ApplicationClientId = Guid.Parse(SampleAppId)
+                    ApiClientId = Guid.Parse(SampleAppId)
                 }
             }
             };
@@ -158,7 +160,7 @@ namespace Postkit.Infrastructure.Data
                     UserId = adminUser!.Id.ToString(),
                     Type = "Like",
                     CreatedAt = DateTime.UtcNow,
-                    ApplicationClientId = Guid.Parse(SampleAppId),
+                    ApiClientId = Guid.Parse(SampleAppId),
                 },
                 new Reaction
                 {
@@ -168,7 +170,7 @@ namespace Postkit.Infrastructure.Data
                     UserId = user!.Id.ToString(),
                     Type = "Love",
                     CreatedAt = DateTime.UtcNow,
-                    ApplicationClientId = Guid.Parse(SampleAppId),
+                    ApiClientId = Guid.Parse(SampleAppId),
                 }
             };
 
@@ -178,24 +180,29 @@ namespace Postkit.Infrastructure.Data
 
         private static async Task SeedApplicationsAsync(PostkitDbContext context)
         {
-            if (context.ApplicationClients.Any())
+            if (context.ApiClients.Any())
                 return;
 
-            var apps = new List<ApplicationClient>
+            var rawKey = Guid.NewGuid().ToString("N"); // Send this to client only once
+            var hashedKey = ApiKeyHelper.HashApiKey(rawKey);
+
+            var apps = new List<ApiClient>
             {
-                new ApplicationClient
+                new ApiClient
                 {
                     Id = Guid.Parse(SampleAppId),
-                    Name = "BetSync"
+                    Name = "BetSync",
+                    HashedApiKey = hashedKey
                 },
-                new ApplicationClient
+                new ApiClient
                 {
                     Id = Guid.NewGuid(),
-                    Name = "AnotherApp"
+                    Name = "Demo",
+                    HashedApiKey = hashedKey
                 }
             };
 
-            context.ApplicationClients.AddRange(apps);
+            context.ApiClients.AddRange(apps);
             await context.SaveChangesAsync();
         }
     }

@@ -23,7 +23,7 @@ namespace Postkit.Infrastructure.Data
                 .HasOne(c => c.Post)
                 .WithMany(p => p.Comments)
                 .HasForeignKey(c => c.PostId)
-                .OnDelete(DeleteBehavior.Restrict); // use Restrict to prevent cascade cycles
+                .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<Comment>()
                 .HasOne(c => c.User)
@@ -35,7 +35,7 @@ namespace Postkit.Infrastructure.Data
                 .HasOne(r => r.Post)
                 .WithMany(p => p.Reactions)
                 .HasForeignKey(r => r.PostId)
-                .OnDelete(DeleteBehavior.Restrict); // Prevent cascade loops
+                .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<Notification>()
                 .HasOne(n => n.User)
@@ -47,13 +47,20 @@ namespace Postkit.Infrastructure.Data
                 .HasOne(n => n.Post)
                 .WithMany()
                 .HasForeignKey(n => n.PostId)
-                .OnDelete(DeleteBehavior.Restrict); // consistent and safe
+                .OnDelete(DeleteBehavior.Restrict);
+
+
+            builder.Entity<ApplicationUser>()
+                .HasOne(u => u.ApiClient)
+                .WithMany(c => c.Users)
+                .HasForeignKey(u => u.ApiClientId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
 
         public DbSet<Post> Posts { get; set; } = null!;
         public DbSet<Comment> Comments { get; set; } = null!;
         public DbSet<Reaction> Reactions { get; set; } = null!;
-        public DbSet<ApplicationClient> ApplicationClients { get; set; } = null!;
         public DbSet<Notification> Notifications { get; set; }
+        public DbSet<ApiClient> ApiClients { get; set; }
     }
 }

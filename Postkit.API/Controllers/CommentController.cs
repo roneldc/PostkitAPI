@@ -26,7 +26,8 @@ namespace Postkit.API.Controllers
         public async Task<IActionResult> GetByPostId([FromQuery] CommentQuery query)
         {
             logger.LogInformation("GET api/comments/{PostId} endpoint called", query.PostId);
-            var comments = await commentService.GetByPostIdAsync(query);
+            var apiClientId = (Guid)HttpContext.Items["ApiClientId"]!;
+            var comments = await commentService.GetByPostIdAsync(query, apiClientId);
 
             return Ok(ApiResponse<PagedResponse<CommentDto>>.SuccessResponse(comments, "Comments retrieved successfully."));
         }

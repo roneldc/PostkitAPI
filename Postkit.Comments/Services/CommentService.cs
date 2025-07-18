@@ -28,7 +28,7 @@ namespace Postkit.Comments.Services
             this.currentUserService = currentUserService;
             this.notificationService = notificationService;
         }
-        public async Task<PagedResponse<CommentDto>> GetByPostIdAsync(CommentQuery query)
+        public async Task<PagedResponse<CommentDto>> GetByPostIdAsync(CommentQuery query, Guid apiCLientId)
         {
             logger.LogInformation("Getting comments for post with ID: {postId}", query.PostId);
 
@@ -37,6 +37,7 @@ namespace Postkit.Comments.Services
             var totalCount = await postsQuery.CountAsync();
             var pagedComments = await postsQuery
                 .Include(c => c.User)
+                .Where(c => c.ApiClientId == apiCLientId)
                 .OrderBy(c => c.CreatedAt)
                 .Skip((query.Page - 1) * query.PageSize)
                 .Take(query.PageSize)
@@ -65,7 +66,7 @@ namespace Postkit.Comments.Services
 
             var comment = dto.ToModel(userId);
             comment.UserId = userId;
-            comment.ApplicationClientId = currentUserService.ApplicationClientId;
+            comment.ApiClientId = currentUserService.ApiClientId;
             var addedComment = await commentRepository.AddAsync(comment);
 
             await notificationService.NotifyPostCommentAsync(dto.PostUserId, dto.PostId, NotificationTypeNames.Comment);
