@@ -13,9 +13,14 @@ C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\Postkit.T
 C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\Postkit.Tests.runtimeconfig.json
 C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\Postkit.Tests.dll
 C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\Postkit.Tests.pdb
+C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\Asp.Versioning.Abstractions.dll
+C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\Asp.Versioning.Http.dll
+C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\Asp.Versioning.Mvc.dll
+C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\Asp.Versioning.Mvc.ApiExplorer.dll
 C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\Azure.Core.dll
 C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\Azure.Identity.dll
 C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\Castle.Core.dll
+C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\CloudinaryDotNet.dll
 C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
 C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\Microsoft.AspNetCore.Cryptography.Internal.dll
 C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\Microsoft.AspNetCore.Cryptography.KeyDerivation.dll
@@ -60,6 +65,7 @@ C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\Microsoft
 C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\Moq.dll
 C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\Newtonsoft.Json.dll
 C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\NuGet.Frameworks.dll
+C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\Swashbuckle.AspNetCore.Annotations.dll
 C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\Swashbuckle.AspNetCore.Swagger.dll
 C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\Swashbuckle.AspNetCore.SwaggerGen.dll
 C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\Swashbuckle.AspNetCore.SwaggerUI.dll
@@ -183,8 +189,3 @@ C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\obj\Debug\net8.0\refint\Po
 C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\obj\Debug\net8.0\Postkit.Tests.pdb
 C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\obj\Debug\net8.0\Postkit.Tests.genruntimeconfig.cache
 C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\obj\Debug\net8.0\ref\Postkit.Tests.dll
-C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\CloudinaryDotNet.dll
-C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\Asp.Versioning.Abstractions.dll
-C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\Asp.Versioning.Http.dll
-C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\Asp.Versioning.Mvc.dll
-C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\Asp.Versioning.Mvc.ApiExplorer.dll

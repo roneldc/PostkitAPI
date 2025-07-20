@@ -1,15 +1,20 @@
 ﻿using Postkit.Shared.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace Postkit.Comments.Queries
+namespace Postkit.Reactions.Queries
 {
-    public class CommentQuery
+    public class ReactionQuery
     {
         public int Page { get; set; } = 1;
         public int PageSize { get; set; } = 10;
         public string? Sort { get; set; }
         public Guid? ApiClientId { get; set; }
 
-        public IQueryable<Comment> ApplyFilters(IQueryable<Comment> query)
+        public IQueryable<Reaction> ApplyFilters(IQueryable<Reaction> query)
         {
             if (ApiClientId.HasValue && ApiClientId.Value != Guid.Empty)
                 query = query.Where(p => p.ApiClientId == ApiClientId.Value);

@@ -27,43 +27,8 @@ namespace Poskit.Posts.Services
             this.currentUserService = currentUserService;
             this.cloudinaryService = cloudinaryService;
         }
-        public async Task<PagedResponse<PostDto>> GetAllPostsAsync(PostQuery query, Guid apiClientId)
-        {
-            logger.LogInformation("Getting all posts with filters and pagination: {Query}", query);
 
-            var postsQuery = postRepository.GetPostsQuery();
-
-            postsQuery = query.ApplyFilters(postsQuery);
-
-            var totalCount = await postsQuery.CountAsync();
-
-            // Apply pagination
-            var pagedPosts = await postsQuery
-                .Include(p => p.User)
-                .Include(p => p.Comments)
-                .Include(p => p.Reactions)
-                .Where(p => p.ApiClientId == apiClientId)
-                .OrderByDescending(p => p.CreatedAt)
-                .Skip((query.Page - 1) * query.PageSize)
-                .Take(query.PageSize)
-                .ToListAsync();
-
-            var postDtos = pagedPosts.Select(p => p.ToDTO(currentUserService.UserId)).ToList();
-
-            return new PagedResponse<PostDto>
-            {
-                Data = postDtos,
-                Pagination = new PaginationMetadata
-                {
-                    CurrentPage = query.Page,
-                    PageSize = query.PageSize,
-                    TotalItems = totalCount,
-                    TotalPages = (int)Math.Ceiling((double)totalCount / query.PageSize)
-                }
-            };
-        }
-
-        public async Task<PagedResponse<PostDetailsDto>> GetAllPostDetailsAsync(PostQuery query, Guid apiClientId)
+        public async Task<PagedResponse<PostDto>> GetAllPostsAsync(PostQuery query)
         {
             logger.LogInformation("Getting all post details with filters and pagination: {Query}", query);
             var postsQuery = postRepository.GetPostsQuery();
@@ -72,23 +37,21 @@ namespace Poskit.Posts.Services
 
             var totalCount = await postsQuery.CountAsync();
 
-            // Apply pagination
-            var pagedPosts = await postsQuery
+            postsQuery = postsQuery
                 .Include(p => p.Comments)
                     .ThenInclude(c => c.User)
-                .Include(p => p.User)
                 .Include(p => p.Reactions)
-                .Where(p => p.ApiClientId == apiClientId)
-                .OrderByDescending(p => p.CreatedAt)
+                .Include(p => p.User);
+
+            var pagedPosts = await postsQuery
                 .Skip((query.Page - 1) * query.PageSize)
                 .Take(query.PageSize)
+                .Select(p => p.ToDTO(query.IncludeComments, currentUserService.UserId))
                 .ToListAsync();
 
-            var postDetailsDto = pagedPosts.Select(p => p.ToPostDetailsDTO(currentUserService.UserId)).ToList();
-
-            return new PagedResponse<PostDetailsDto>
+            return new PagedResponse<PostDto>
             {
-                Data = postDetailsDto,
+                Data = pagedPosts,
                 Pagination = new PaginationMetadata
                 {
                     CurrentPage = query.Page,

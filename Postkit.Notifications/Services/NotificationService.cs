@@ -31,19 +31,23 @@ namespace Postkit.Notifications.Services
 
             logger.LogInformation("Getting all notification with User ID: {Id}", userId);
             var notificationsQuery = repository.GetAllAsync();
+
             notificationsQuery = query.ApplyFilters(notificationsQuery);
+
             var totalCount = await notificationsQuery.CountAsync();
+
+            notificationsQuery = notificationsQuery
+                .Where(n => n.UserId == userId);
+
             var pagedNotifications = await notificationsQuery
-                 .Where(n => n.UserId == userId)
-                 .OrderByDescending(n => n.CreatedAt)
                  .Skip((query.Page - 1) * query.PageSize)
                  .Take(query.PageSize)
+                 .Select(n => n.ToDto())
                  .ToListAsync();
 
-            var notificationDtos = pagedNotifications.Select(n => n.ToDto()).ToList();
             return new PagedResponse<NotificationDto>
             {
-                Data = notificationDtos,
+                Data = pagedNotifications,
                 Pagination = new PaginationMetadata
                 {
                     CurrentPage = query.Page,
@@ -52,15 +56,6 @@ namespace Postkit.Notifications.Services
                     TotalPages = (int)Math.Ceiling((double)totalCount / query.PageSize)
                 }
             };
-        }
-
-        public async Task<List<NotificationDto>> GetUnreadAsync()
-        {
-            var userId = currentUserService.UserId ?? throw new UnauthorizedAccessException();
-            logger.LogInformation("Getting all unread notification with User ID: {Id}", userId);
-
-            var notifications = await repository.GetUnreadAsync(userId);
-            return notifications.ToDtoList();
         }
 
         public async Task MarkAsReadAsync(Guid id)
@@ -92,7 +87,7 @@ namespace Postkit.Notifications.Services
                 NotificationType = notificationType
             };
 
-            await repository.AddAsync(notification.ToModel());
+            await repository.AddAsync(notification.ToModel(currentUserService.ApiClientId));
             await hubContext.Clients.User(postUserId).SendAsync("ReceiveNotification", notification);
         }
 
@@ -111,7 +106,7 @@ namespace Postkit.Notifications.Services
                 NotificationType = notificationType
             };
 
-            await repository.AddAsync(notification.ToModel());
+            await repository.AddAsync(notification.ToModel(currentUserService.ApiClientId));
             await hubContext.Clients.User(postUserId).SendAsync("ReceiveNotification", notification);
         }
     }

@@ -12,5 +12,7 @@
         public bool IsRead { get; set; } = false;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public string Type { get; set; } = string.Empty;
+        public Guid ApiClientId { get; set; }
+        public ApiClient? ApiClient { get; set; }
     }
 }

@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Postkit.Comments.DTOs;
 
 namespace Poskit.Posts.DTOs
 {
@@ -13,9 +13,9 @@ namespace Poskit.Posts.DTOs
         public int ReactionsCount { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
+        public List<CommentDto>? Comments { get; set; }
         public bool IsUserReacted { get; set; }
         public string? MediaUrl { get; set; }
         public string? MediaType { get; set; }
-
     }
 }

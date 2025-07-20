@@ -16,7 +16,14 @@ namespace Postkit.Reactions.Repositories
             this.context = context;
             this.logger = logger;
         }
-        public async Task<Reaction?> GetByUserPostAndTypeAsync(string userId, Guid postId, string type, Guid apiClientId)
+
+        public IQueryable<Reaction> GetReactionsByPost()
+        {
+            logger.LogInformation("Fetching reactions query for all post from the database.");
+            return context.Reactions.AsQueryable();
+        }
+
+        public async Task<Reaction?> GetReactionsByUserPostAndTypeAsync(string userId, Guid postId, string type, Guid apiClientId)
         {
             logger.LogInformation("Getting reaction with Post ID: {PostID}, User ID: {userId}, Type: {Type}, ApiClientId: {ApiClientId}", postId, userId, type, apiClientId);
 

@@ -28,26 +28,28 @@ namespace Postkit.Comments.Services
             this.currentUserService = currentUserService;
             this.notificationService = notificationService;
         }
-        public async Task<PagedResponse<CommentDto>> GetByPostIdAsync(CommentQuery query, Guid apiCLientId)
+        public async Task<PagedResponse<CommentDto>> GetCommentsByPost(Guid postId, CommentQuery query, Guid apiCLientId)
         {
-            logger.LogInformation("Getting comments for post with ID: {postId}", query.PostId);
+            logger.LogInformation("Getting comments for post with ID: {postId}", postId);
+            var commentsQuery = commentRepository.GetCommentsByPost();
 
-            var postsQuery = commentRepository.GetByPostIdAsync();
-            postsQuery = query.ApplyFilters(postsQuery);
-            var totalCount = await postsQuery.CountAsync();
-            var pagedComments = await postsQuery
+            commentsQuery = query.ApplyFilters(commentsQuery);
+
+            var totalCount = await commentsQuery.CountAsync();
+
+            commentsQuery = commentsQuery
                 .Include(c => c.User)
-                .Where(c => c.ApiClientId == apiCLientId)
-                .OrderBy(c => c.CreatedAt)
+                .Where(c => c.PostId == postId);
+
+            var pagedComments = await commentsQuery
                 .Skip((query.Page - 1) * query.PageSize)
                 .Take(query.PageSize)
+                .Select(c => c.ToDto())
                 .ToListAsync();
-
-            var commentDtos = pagedComments.Select(c => c.ToDto()).ToList();
 
             return new PagedResponse<CommentDto>
             {
-                Data = commentDtos,
+                Data = pagedComments,
                 Pagination = new PaginationMetadata
                 {
                     CurrentPage = query.Page,

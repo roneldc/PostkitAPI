@@ -18,7 +18,7 @@ namespace Postkit.Notifications.Mappers
             };
         }
 
-        public static Notification ToModel(this CreateNotificationDto dto)
+        public static Notification ToModel(this CreateNotificationDto dto, Guid apiClientId)
         {
             ArgumentNullException.ThrowIfNull(dto);
 
@@ -28,7 +28,8 @@ namespace Postkit.Notifications.Mappers
                 Username = dto.Username,
                 Message = dto.Message,
                 PostId = dto.PostId,
-                Type = dto.NotificationType
+                Type = dto.NotificationType,
+                ApiClientId = apiClientId
             };
         }
 

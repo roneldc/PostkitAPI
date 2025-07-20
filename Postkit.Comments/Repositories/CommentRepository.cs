@@ -16,17 +16,8 @@ namespace Postkit.Comments.Repository
             this.context = context;
             this.logger = logger;
         }
-        public async Task<List<Comment>> GetByPostIdAsync(Guid postId)
-        {
-            logger.LogInformation("Fetching comments for post with ID: {postId} from the database.", postId);
-            return await context.Comments
-                .Where(c => c.PostId == postId)
-                .Include(c => c.User)
-                .OrderByDescending(c => c.CreatedAt)
-                .ToListAsync();
-        }
 
-        public IQueryable<Comment> GetByPostIdAsync()
+        public IQueryable<Comment> GetCommentsByPost()
         {
             logger.LogInformation("Fetching comments query for all posts from the database.");
             return context.Comments.AsQueryable();
