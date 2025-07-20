@@ -4,7 +4,8 @@ namespace Postkit.Reactions.Interfaces
 {
     public interface IReactionRepository
     {
-        Task<Reaction?> GetByUserPostAndTypeAsync(string userId, Guid postId, string type, Guid appid);
+        IQueryable<Reaction> GetReactionsByPost();
+        Task<Reaction?> GetReactionsByUserPostAndTypeAsync(string userId, Guid postId, string type, Guid appid);
         Task AddAsync(Reaction reaction);
         Task Remove(Reaction reaction);
         Task<int> CountByPostAndTypeAsync(Guid postId, string type, Guid appid);

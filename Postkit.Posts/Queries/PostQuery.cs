@@ -1,4 +1,5 @@
-﻿using Postkit.Shared.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using Postkit.Shared.Models;
 
 namespace Poskit.Posts.Queries
 {
@@ -9,10 +10,15 @@ namespace Poskit.Posts.Queries
         public string? Search { get; set; }
         public Guid? PostId { get; set; }
         public string? UserId { get; set; }
-        public bool SortByTopReactions { get; set; } = false;
+        public string? Sort { get; set; }
+        public bool IncludeComments { get; set; } = false;
+        public Guid? ApiClientId { get; set; }
 
         public IQueryable<Post> ApplyFilters(IQueryable<Post> query)
         {
+            if (ApiClientId.HasValue && ApiClientId.Value != Guid.Empty)
+                query = query.Where(p => p.ApiClientId == ApiClientId.Value);
+
             if (PostId.HasValue && PostId.Value != Guid.Empty)
                 query = query.Where(p => p.Id == PostId.Value);
 
@@ -28,11 +34,21 @@ namespace Poskit.Posts.Queries
                     p.User!.UserName!.ToLower().Contains(lowerSearch));
             }
 
-            if (SortByTopReactions)
+            if (!string.IsNullOrWhiteSpace(Sort))
             {
-                query = query
-                    .Where(p => p.Reactions.Any())
-                    .OrderByDescending(p => p.Reactions.Count);
+                query = Sort switch
+                {
+                    "createdAt_asc" => query.OrderBy(p => p.CreatedAt),
+                    "createdAt_desc" => query.OrderByDescending(p => p.CreatedAt),
+                    "topReactions" => query
+                        .Where(p => p.Reactions.Any())
+                        .OrderByDescending(p => p.Reactions.Count),
+                    _ => query.OrderByDescending(p => p.CreatedAt)
+                };
+            }
+            else
+            {
+                query = query.OrderByDescending(p => p.CreatedAt);
             }
 
             return query;

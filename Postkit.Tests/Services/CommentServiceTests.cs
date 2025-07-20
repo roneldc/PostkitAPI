@@ -33,29 +33,29 @@ namespace Postkit.Tests.Services
             );
         }
 
-        [Fact]
-        public async Task GetPostByIdAsync_ReturnsCommentDto_WhenCommentExists()
-        {
-            // Arrange
-            var postId = Guid.NewGuid();
-            var comment = new Comment
-            {
-                Id = 1,
-                PostId = postId,
-                Content = "Test comment",
-                UserId = "user123",
-                CreatedAt = DateTime.UtcNow
-            };
+        //[Fact]
+        //public async Task GetPostByIdAsync_ReturnsCommentDto_WhenCommentExists()
+        //{
+        //    // Arrange
+        //    var postId = Guid.NewGuid();
+        //    var comment = new Comment
+        //    {
+        //        Id = 1,
+        //        PostId = postId,
+        //        Content = "Test comment",
+        //        UserId = "user123",
+        //        CreatedAt = DateTime.UtcNow
+        //    };
 
-            commentRepositoryMock.Setup(r => r.GetByPostIdAsync(postId))
-                .ReturnsAsync(new List<Comment> { comment });
+        //    commentRepositoryMock.Setup(r => r.GetByPostIdAsync(postId))
+        //        .ReturnsAsync(new List<Comment> { comment });
 
-            // Act
-            //var result = await commentService.GetByPostIdAsync(postId, new CommentQuery());
+        //    // Act
+        //    //var result = await commentService.GetByPostIdAsync(postId, new CommentQuery());
 
-            // Assert
-           // Assert.NotNull(result);
-        }
+        //    // Assert
+        //   // Assert.NotNull(result);
+        //}
 
         [Fact]
         public async Task CreateAsync_CreatesComment_WhenValidDtoProvided()

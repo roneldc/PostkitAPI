@@ -66,6 +66,7 @@ builder.Services.AddSwaggerGen(options =>
     };
 
     options.AddSecurityRequirement(securityRequirement);
+    options.EnableAnnotations();
 });
 builder.Services.AddDbContext<PostkitDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("PostkitApiConnection")));
@@ -166,8 +167,8 @@ builder.Services.AddApiVersioning(options =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+var enableSwagger = builder.Configuration.GetValue<bool>("EnableSwagger");
+if (enableSwagger)
 {
     app.UseSwagger();
     app.UseSwaggerUI(c =>
@@ -175,7 +176,11 @@ if (app.Environment.IsDevelopment())
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Postkit API v1");
         c.RoutePrefix = "swagger";
     });
+}
 
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
     using (var scope = app.Services.CreateScope())
     {
         var dbContext = scope.ServiceProvider.GetRequiredService<PostkitDbContext>();
