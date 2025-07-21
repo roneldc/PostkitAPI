@@ -12,7 +12,16 @@ namespace Postkit.API.Middleware
 
         public async Task InvokeAsync(HttpContext context, PostkitDbContext dbContext)
         {
-            if (context.Request.Path.StartsWithSegments("/api"))
+            var path = context.Request.Path;
+
+            // Bypass API key check for /api/health endpoint
+            if (path.Equals("/api/health", StringComparison.OrdinalIgnoreCase))
+            {
+                await _next(context);
+                return;
+            }
+
+            if (path.StartsWithSegments("/api"))
             {
                 var clientIdHeader = context.Request.Headers["X-Api-ClientId"].FirstOrDefault();
                 var apiKeyHeader = context.Request.Headers["X-Api-Key"].FirstOrDefault();
