@@ -98,6 +98,7 @@ builder.Services.AddScoped<IReactionService, ReactionService>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
+builder.Services.AddTransient<IMailService, MailjetMailService>();
 
 builder.Services.AddAuthentication(options =>
 {

@@ -16,6 +16,7 @@ namespace Postkit.Tests.Services
         private readonly Mock<IConfiguration> configMock;
         private readonly Mock<ILogger<AuthService>> loggerMock;
         private readonly Mock<IJwtService> jwtServiceMock;
+        private readonly Mock<MailjetMailService> mailServiceMock;
 
         private readonly AuthService authService;
 
@@ -32,7 +33,8 @@ namespace Postkit.Tests.Services
                 userManagerMock.Object,
                 configMock.Object,
                 loggerMock.Object,
-                jwtServiceMock.Object
+                jwtServiceMock.Object,
+                mailServiceMock!.Object
             );
         }
 
@@ -100,7 +102,7 @@ namespace Postkit.Tests.Services
             userManagerMock.Setup(x => x.FindByEmailAsync(dto.Email))
                 .ReturnsAsync(user);
 
-            await Assert.ThrowsAsync<InvalidOperationException>(() => authService.RegisterAsync(dto));
+            await Assert.ThrowsAsync<InvalidOperationException>(() => authService.RegisterAsync(dto, Guid.NewGuid()));
         }
 
         [Fact]
@@ -121,7 +123,7 @@ namespace Postkit.Tests.Services
             jwtServiceMock.Setup(x => x.GenerateToken(It.IsAny<ApplicationUser>(), roles, out It.Ref<DateTime>.IsAny))
                 .Returns(token);
 
-            var result = await authService.RegisterAsync(dto);
+            var result = await authService.RegisterAsync(dto, Guid.NewGuid());
 
             Assert.NotNull(result);
             Assert.Equal(token, result.Token);

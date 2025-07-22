@@ -16,5 +16,10 @@ namespace Postkit.Identity.DTOs.Auth
         [MinLength(6, ErrorMessage = "Password must be at least 6 characters long.")]
         [RegularExpression(@"^\S+$", ErrorMessage = "Password must not contain whitespace.")]
         public string Password { get; set; } = string.Empty;
+        [Required(ErrorMessage = "ClientUri is required.")]
+        [Url(ErrorMessage = "ClientUri must be a valid URL.")]
+        public string ClientUri { get; set; } = string.Empty;
+        [Required]
+        public string AppName { get; set; } = string.Empty;
     }
 }
