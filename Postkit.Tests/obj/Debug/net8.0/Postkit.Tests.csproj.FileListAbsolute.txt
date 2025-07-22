@@ -1,4 +1,10 @@
 C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\CoverletSourceRootsMapping_Postkit.Tests
+C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\obj\Debug\net8.0\Postkit.Tests.csproj.AssemblyReference.cache
+C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\obj\Debug\net8.0\Postkit.Tests.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\obj\Debug\net8.0\Postkit.Tests.AssemblyInfoInputs.cache
+C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\obj\Debug\net8.0\Postkit.Tests.AssemblyInfo.cs
+C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\obj\Debug\net8.0\Postkit.Tests.csproj.CoreCompileInputs.cache
+C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\obj\Debug\net8.0\Postkit.Tests.sourcelink.json
 C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\testhost.dll
 C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\Postkit.API.deps.json
 C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\Postkit.API.runtimeconfig.json
@@ -21,6 +27,7 @@ C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\Azure.Cor
 C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\Azure.Identity.dll
 C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\Castle.Core.dll
 C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\CloudinaryDotNet.dll
+C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\Mailjet.Client.dll
 C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
 C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\Microsoft.AspNetCore.Cryptography.Internal.dll
 C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\Microsoft.AspNetCore.Cryptography.KeyDerivation.dll
@@ -177,12 +184,6 @@ C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\Postkit.I
 C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\Postkit.Notifications.pdb
 C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\Postkit.Reactions.pdb
 C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\bin\Debug\net8.0\Postkit.Shared.pdb
-C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\obj\Debug\net8.0\Postkit.Tests.csproj.AssemblyReference.cache
-C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\obj\Debug\net8.0\Postkit.Tests.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\obj\Debug\net8.0\Postkit.Tests.AssemblyInfoInputs.cache
-C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\obj\Debug\net8.0\Postkit.Tests.AssemblyInfo.cs
-C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\obj\Debug\net8.0\Postkit.Tests.csproj.CoreCompileInputs.cache
-C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\obj\Debug\net8.0\Postkit.Tests.sourcelink.json
 C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\obj\Debug\net8.0\Postkit..501221B1.Up2Date
 C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\obj\Debug\net8.0\Postkit.Tests.dll
 C:\Users\johnr\OneDrive\Desktop\Postkit\Postkit.Tests\obj\Debug\net8.0\refint\Postkit.Tests.dll

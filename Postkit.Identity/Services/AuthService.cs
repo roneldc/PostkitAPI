@@ -12,14 +12,22 @@ namespace Postkit.Identity.Services
     public class AuthService : IAuthService
     {
         private readonly UserManager<ApplicationUser> userManager;
+        private readonly IConfiguration config;
         private readonly ILogger<AuthService> logger;
         private readonly IJwtService jwtService;
+        private readonly IMailService mailService;
 
-        public AuthService(UserManager<ApplicationUser> userManager, IConfiguration config, ILogger<AuthService> logger, IJwtService jwtService)
+        public AuthService(UserManager<ApplicationUser> userManager, 
+            IConfiguration config, 
+            ILogger<AuthService> logger, 
+            IJwtService jwtService,
+            IMailService mailService)
         {
             this.userManager = userManager;
+            this.config = config;
             this.logger = logger;
             this.jwtService = jwtService;
+            this.mailService = mailService;
         }
         public async Task<AuthDto?> LoginAsync(LoginDto dto)
         {
@@ -63,12 +71,13 @@ namespace Postkit.Identity.Services
                     Id = user.Id,
                     Email = user.Email ?? string.Empty,
                     UserName = user.UserName ?? string.Empty,
+                    EmailConfirmed = user.EmailConfirmed,
                     Roles = roles.ToList()
                 }
             };
         }
 
-        public async Task<AuthDto> RegisterAsync(RegisterDto dto)
+        public async Task<AuthDto> RegisterAsync(RegisterDto dto, Guid apiClientId)
         {
             logger.LogInformation("User attempting registration: {Email}", dto.Email);
 
@@ -82,7 +91,8 @@ namespace Postkit.Identity.Services
             var user = new ApplicationUser
             {
                 UserName = dto.UserName,
-                Email = dto.Email
+                Email = dto.Email,
+                ApiClientId = apiClientId
             };
 
             var result = await userManager.CreateAsync(user, dto.Password);
@@ -99,11 +109,16 @@ namespace Postkit.Identity.Services
             logger.LogInformation("User {Email} registered successfully", dto.Email);
 
             var roles = await userManager.GetRolesAsync(user);
-            var token = jwtService.GenerateToken(user, roles, out DateTime expiresAt);
+            var jwtToken = jwtService.GenerateToken(user, roles, out DateTime expiresAt);
+
+            var emailToken = await userManager.GenerateEmailConfirmationTokenAsync(user);
+            var confirmationLink = $"{dto.ClientUri}/confirm-email?userId={user.Id}&token={Uri.EscapeDataString(emailToken)}&jwtToken={Uri.EscapeDataString(jwtToken)}";
+
+            await mailService.SendConfirmationEmail(user.Email, user.UserName, confirmationLink, dto.AppName);
 
             return new AuthDto
             {
-                Token = token,
+                Token = jwtToken,
                 ExpiresAt = expiresAt,
                 User = new AuthUserDto
                 {
@@ -113,6 +128,26 @@ namespace Postkit.Identity.Services
                     Roles = roles.ToList()
                 }
             };
+        }
+
+        public async Task<bool> ConfirmEmailAsync(string userId, string token)
+        {
+            var user = await userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                logger.LogWarning("Email confirmation failed: user not found (ID: {UserId})", userId);
+                return false;
+            }
+
+            var result = await userManager.ConfirmEmailAsync(user, token);
+            if (!result.Succeeded)
+            {
+                logger.LogWarning("Email confirmation failed for user {Email}: {Errors}", user.Email, string.Join(", ", result.Errors.Select(e => e.Description)));
+                return false;
+            }
+
+            logger.LogInformation("Email confirmed successfully for user {Email}", user.Email);
+            return true;
         }
     }
 }

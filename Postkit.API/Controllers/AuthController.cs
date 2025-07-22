@@ -67,12 +67,33 @@ namespace Postkit.API.Controllers
 
             if (dto == null || !ModelState.IsValid)
             {
-                logger.LogWarning("Invalid registration attempt: {Errors}", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
+                var errors = string.Join(", ", ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage));
+
+                logger.LogWarning("Invalid registration attempt: {Errors}", errors);
                 return BadRequest(ApiResponse<AuthDto>.ErrorResponse("Invalid registration data."));
             }
 
-            var result = await authService.RegisterAsync(dto);
+            var apiClientId = (Guid)HttpContext.Items["ApiClientId"]!;
+
+            var result = await authService.RegisterAsync(dto, apiClientId);
+
             return Ok(ApiResponse<AuthDto>.SuccessResponse(result, "Registration successful."));
+        }
+
+        [HttpGet("confirm-email")]
+        [AllowAnonymous]
+        [SwaggerOperation(Summary = "Confirm email address", Description = "Verifies the email address of a user using the confirmation token.")]
+        [SwaggerResponse(StatusCodes.Status200OK, "Email confirmed successfully.")]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid user ID or confirmation token.")]
+        public async Task<IActionResult> ConfirmEmail(string userId, string token)
+        {
+            var success = await authService.ConfirmEmailAsync(userId, token);
+            if (!success)
+                return BadRequest("Email confirmation failed.");
+
+            return Ok("Email confirmed successfully.");
         }
     }
 }
