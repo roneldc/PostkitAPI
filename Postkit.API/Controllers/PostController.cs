@@ -75,7 +75,7 @@ namespace Postkit.API.Controllers
         /// <response code="400">Invalid input</response>
         /// <response code="401">Unauthorized</response>
         [HttpPost]
-        [Authorize(Policy = "AdminOrUser")]
+        [Authorize(Policy = "AdminOrClientAdmin")]
         [Consumes("multipart/form-data")]
         [SwaggerOperation(Summary = "Create a post", Description = "Creates a new post. Accepts multipart form data.")]
         [SwaggerResponse(201, "Post created", typeof(PostDto))]
@@ -99,7 +99,7 @@ namespace Postkit.API.Controllers
         /// <response code="400">Invalid data</response>
         /// <response code="404">Post not found</response>
         [HttpPut("{id}")]
-        [Authorize(Policy = "AdminOrUser")]
+        [Authorize(Policy = "AdminOrClientAdmin")]
         [Consumes("multipart/form-data")]
         [SwaggerOperation(Summary = "Update a post", Description = "Updates an existing post. Accepts multipart form data.")]
         [SwaggerResponse(200, "Post updated", typeof(PostDto))]
@@ -123,7 +123,7 @@ namespace Postkit.API.Controllers
         /// <response code="204">Post deleted</response>
         /// <response code="404">Post not found</response>
         [HttpDelete("{id}")]
-        [Authorize(Policy = "AdminOrUser")]
+        [Authorize(Policy = "AdminOrClientAdmin")]
         [SwaggerOperation(Summary = "Delete a post", Description = "Deletes a post by ID. Requires Admin or User role.")]
         [SwaggerResponse(204, "Post deleted")]
         [SwaggerResponse(404, "Post not found")]

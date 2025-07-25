@@ -1,8 +1,10 @@
 using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Postkit.Identity.DTOs.ApiClient;
 using Postkit.Identity.DTOs.Auth;
 using Postkit.Identity.Interfaces;
+using Postkit.Shared.Constants;
 using Postkit.Shared.Responses;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -40,8 +42,8 @@ namespace Postkit.API.Controllers
         public async Task<IActionResult> Login([FromBody] LoginDto dto)
         {
             logger.LogInformation("Login endpoint hit with username: {username}", dto.UsernameOrEmail);
-
-            var authResponse = await authService.LoginAsync(dto);
+            var apiClientId = (Guid)HttpContext.Items["ApiClientId"]!;
+            var authResponse = await authService.LoginAsync(dto, apiClientId);
             if (authResponse == null)
                 return Unauthorized(ApiResponse<AuthDto>.ErrorResponse("Invalid username or password."));
 
@@ -58,7 +60,7 @@ namespace Postkit.API.Controllers
         /// <response code="400">Invalid registration details or email already in use</response>
         [HttpPost("register")]
         [AllowAnonymous]
-        [SwaggerOperation(Summary = "User registration", Description = "Registers a new user and returns a JWT token.")]
+        [SwaggerOperation(Summary = "Register a new external client user", Description = "Creates a new user account for a client, typically used by external applications or partners.")]
         [SwaggerResponse(201, "Registration successful", typeof(AuthDto))]
         [SwaggerResponse(400, "Invalid input or email already in use")]
         public async Task<IActionResult> Register([FromBody] RegisterDto dto)
@@ -79,6 +81,33 @@ namespace Postkit.API.Controllers
 
             var result = await authService.RegisterAsync(dto, apiClientId);
 
+            return Ok(ApiResponse<AuthDto>.SuccessResponse(result, "Registration successful."));
+        }
+
+        [HttpPost("client-register")]
+        [AllowAnonymous]
+        [SwaggerOperation(
+            Summary = "Register a new client user",
+            Description = "Registers a new user account to onboard a client to the Postkit API. " +
+                          "Requires valid `ApiClientId` and `ApiKey` headers for authentication."
+        )]
+        [SwaggerResponse(StatusCodes.Status200OK, "Registration successful", typeof(ApiResponse<AuthDto>))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid registration data", typeof(ApiResponse<AuthDto>))]
+        public async Task<IActionResult> ClientRegister([FromBody] RegisterDto dto)
+        {
+            logger.LogInformation("Register endpoint hit with email: {email}", dto.Email);
+
+            if (dto == null || !ModelState.IsValid)
+            {
+                var errors = string.Join(", ", ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage));
+
+                logger.LogWarning("Invalid registration attempt: {Errors}", errors);
+                return BadRequest(ApiResponse<AuthDto>.ErrorResponse("Invalid registration data."));
+            }
+
+            var result = await authService.ClientRegisterAsync(dto);
             return Ok(ApiResponse<AuthDto>.SuccessResponse(result, "Registration successful."));
         }
 

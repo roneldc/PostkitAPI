@@ -5,30 +5,30 @@ namespace Postkit.Identity.Queries
 {
     public class UserQuery
     {
-        public string? UserName { get; set; }
-        public string? Email { get; set; }
         public int Page { get; set; } = 1;
         public int PageSize { get; set; } = 10;
+        public string? Search { get; set; }
         public Guid? ApiClientId { get; set; }
+        public string? Sort { get; set; }
+        public bool IsEmailConfirmed { get; set; }
 
         public IQueryable<ApplicationUser> ApplyFilters(IQueryable<ApplicationUser> query)
         {
-            if (!string.IsNullOrEmpty(UserName))
+            if (ApiClientId.HasValue && ApiClientId.Value != Guid.Empty)
+                query = query.Where(p => p.ApiClientId == ApiClientId.Value);
+
+            if (!string.IsNullOrWhiteSpace(Search))
             {
-                query = query.Where(h => EF.Functions.Like(h.UserName, $"%{UserName}%"));
+                var lowerSearch = Search.ToLower();
+                query = query.Where(p =>
+                    p.UserName!.ToLower().Contains(lowerSearch) ||
+                    p.Email!.ToLower().Contains(lowerSearch));
             }
 
-            if (!string.IsNullOrEmpty(Email))
-            {
-                query = query.Where(h => EF.Functions.Like(h.Email, $"%{Email}%"));
-            }
+            if(IsEmailConfirmed)
+                    query = query.Where(p => p.EmailConfirmed);
 
-            if (ApiClientId.HasValue)
-            {
-                query = query.Where(u => u.ApiClientId == ApiClientId);
-            }
-
-            return query.Skip((Page - 1) * PageSize).Take(PageSize);
+            return query;
         }
     }
 }

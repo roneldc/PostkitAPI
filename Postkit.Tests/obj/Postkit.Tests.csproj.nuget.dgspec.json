@@ -227,6 +227,9 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
+              "C:\\Users\\johnr\\OneDrive\\Desktop\\Postkit\\Postkit.Infrastructure\\Postkit.Infrastructure.csproj": {
+                "projectPath": "C:\\Users\\johnr\\OneDrive\\Desktop\\Postkit\\Postkit.Infrastructure\\Postkit.Infrastructure.csproj"
+              },
               "C:\\Users\\johnr\\OneDrive\\Desktop\\Postkit\\Postkit.Shared\\Postkit.Shared.csproj": {
                 "projectPath": "C:\\Users\\johnr\\OneDrive\\Desktop\\Postkit\\Postkit.Shared\\Postkit.Shared.csproj"
               }

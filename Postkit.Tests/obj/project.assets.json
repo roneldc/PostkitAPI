@@ -3478,6 +3478,7 @@
           "Mailjet.Api": "3.0.0",
           "Microsoft.AspNetCore.Authentication.JwtBearer": "8.0.16",
           "Microsoft.AspNetCore.Identity.EntityFrameworkCore": "8.0.16",
+          "Postkit.Infrastructure": "1.0.0",
           "Postkit.Shared": "1.0.0"
         },
         "compile": {

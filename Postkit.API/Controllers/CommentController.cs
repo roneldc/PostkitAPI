@@ -52,7 +52,7 @@ namespace Postkit.API.Controllers
         /// <response code="400">Invalid input</response>
         /// <response code="401">Unauthorized</response>
         [HttpPost]
-        [Authorize(Policy = "AdminOrUser")]
+        [Authorize(Policy = "AdminOrClientAdmin")]
         [SwaggerOperation(Summary = "Add comment", Description = "Adds a new comment to a post. Requires Admin or User role.")]
         [SwaggerResponse(201, "Comment created successfully", typeof(CommentDto))]
         [SwaggerResponse(400, "Invalid input")]
@@ -75,7 +75,7 @@ namespace Postkit.API.Controllers
         /// <response code="403">Forbidden (not owner or admin)</response>
         /// <response code="404">Comment not found</response>
         [HttpDelete("{id:int}")]
-        [Authorize(Policy = "AdminOrUser")]
+        [Authorize(Policy = "AdminOrClientAdmin")]
         [SwaggerOperation(Summary = "Delete comment", Description = "Soft deletes a comment. Only the owner or an admin can delete.")]
         [SwaggerResponse(204, "Comment deleted successfully")]
         [SwaggerResponse(403, "Forbidden")]

@@ -51,17 +51,20 @@ namespace Postkit.Identity.Services
             usersQuery = query.ApplyFilters(usersQuery);
             var totalCount = await usersQuery.CountAsync();
             var users = await usersQuery.ToListAsync();
-            var userDtos = users.Select(u => new AuthUserDto
+
+            var userDtos = await Task.WhenAll(users.Select(async u => new AuthUserDto
             {
                 Id = u.Id,
                 Email = u.Email!,
                 UserName = u.UserName!,
-                Roles = userManager.GetRolesAsync(u).Result.ToList()
-            }).ToList();
+                Roles = (await userManager.GetRolesAsync(u)).ToList()
+            }));
+
+            var userDtoList = userDtos.ToList();
 
             return new PagedResponse<AuthUserDto>
             {
-                Data = userDtos,
+                Data = userDtoList,
                 Pagination = new PaginationMetadata
                 {
                     CurrentPage = query.Page,

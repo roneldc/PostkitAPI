@@ -13,6 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Postkit.Infrastructure\Postkit.Infrastructure.csproj" />
     <ProjectReference Include="..\Postkit.Shared\Postkit.Shared.csproj" />
   </ItemGroup>
 

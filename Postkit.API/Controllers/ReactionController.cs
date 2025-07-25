@@ -57,7 +57,7 @@ namespace Postkit.API.Controllers
         /// <response code="400">Invalid input</response>
         /// <response code="401">Unauthorized</response>
         [HttpPost]
-        [Authorize(Policy = "AdminOrUser")]
+        [Authorize(Policy = "AdminOrClientAdmin")]
         [SwaggerOperation(Summary = "Toggle reaction", Description = "Adds or removes a reaction for the authenticated user. Requires Admin or User role.")]
         [SwaggerResponse(200, "Reaction toggled", typeof(ReactionInfoDto))]
         [SwaggerResponse(400, "Invalid input")]

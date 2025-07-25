@@ -12,6 +12,7 @@ using Postkit.Comments.Interfaces;
 using Postkit.Comments.Repository;
 using Postkit.Comments.Services;
 using Postkit.Identity.Interfaces;
+using Postkit.Identity.Repository;
 using Postkit.Identity.Services;
 using Postkit.Infrastructure.Data;
 using Postkit.Notifications.Hubs;
@@ -99,6 +100,8 @@ builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
 builder.Services.AddTransient<IMailService, MailjetMailService>();
+builder.Services.AddScoped<IApiClientRepository, ApiClientRepository>();
+builder.Services.AddScoped<IApiClientService, ApiClientService>();
 
 builder.Services.AddAuthentication(options =>
 {
@@ -137,8 +140,8 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("AdminOrUser", policy =>
-        policy.RequireRole(UserRoles.Admin, UserRoles.User));
+    options.AddPolicy("AdminOrClientAdmin", policy =>
+        policy.RequireRole(UserRoles.Admin, UserRoles.ClientAdmin));
 });
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
