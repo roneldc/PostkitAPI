@@ -21,10 +21,8 @@ namespace Postkit.Shared.Responses
             Data = data;
             Timestamp = DateTime.UtcNow;
         }
-        public static ApiResponse<T> SuccessResponse(T data, string message = "", int statusCode = 200) =>
+        public static ApiResponse<T> SuccessResponse(string message, T? data = default, int statusCode = 200) =>
             new ApiResponse<T>(true, statusCode, message, data);
 
-        public static ApiResponse<T> ErrorResponse(string message, int statusCode = 400) =>
-            new ApiResponse<T>(false, statusCode, message);
     }
 }

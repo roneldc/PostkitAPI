@@ -1,12 +1,14 @@
-﻿using Postkit.Shared.Models;
+﻿using Postkit.Notifications.Queries;
+using Postkit.Shared.Models;
 
 namespace Postkit.Notifications.Interfaces
 {
     public interface INotificationRepository
     {
-        IQueryable<Notification> GetAllAsync();
-        Task AddAsync(Notification notification);
-        Task MarkAsReadAsync(Guid id);
-        Task MarkAllAsReadAsync(string userId);
+        NotificationQueryBuilder CreateNotificationQuery();
+        Task<Notification> CreateAsync(Notification notification);
+        Task<bool> MarkAsReadAsync(string notificationId, string userId);
+        Task<bool> MarkAllAsReadAsync(string userId);
+        Task<bool> DeleteAsync(string notificationId, string userId);
     }
 }

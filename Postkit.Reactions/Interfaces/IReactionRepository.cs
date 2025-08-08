@@ -1,14 +1,13 @@
-﻿using Postkit.Shared.Models;
+﻿using Postkit.Reactions.Queries;
+using Postkit.Shared.Models;
 
 namespace Postkit.Reactions.Interfaces
 {
     public interface IReactionRepository
     {
-        IQueryable<Reaction> GetReactionsByPost();
-        Task<Reaction?> GetReactionsByUserPostAndTypeAsync(string userId, Guid postId, string type, Guid appid);
-        Task AddAsync(Reaction reaction);
-        Task Remove(Reaction reaction);
-        Task<int> CountByPostAndTypeAsync(Guid postId, string type, Guid appid);
-        Task<bool> ExistsAsync(Guid postId, string userId, string type, Guid appid);
+        ReactionQueryBuilder CreateReactionQuery();
+        Task<Reaction> CreateAsync(Reaction reaction);
+        Task<Reaction?> UpdateAsync(Reaction reaction);
+        Task<bool> DeleteAsync(Guid postId, string userId);
     }
 }

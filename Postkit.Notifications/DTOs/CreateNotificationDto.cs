@@ -1,5 +1,5 @@
 ﻿using Postkit.Shared.Attributes;
-using Postkit.Shared.Constants;
+using Postkit.Shared.Enum;
 using System.ComponentModel.DataAnnotations;
 
 namespace Postkit.Notifications.DTOs
@@ -7,15 +7,20 @@ namespace Postkit.Notifications.DTOs
     public class CreateNotificationDto
     {
         [Required]
-        public string UserId { get; set; } = string.Empty;
+        public string UserId { get; set; } = default!;
+
         [Required]
-        public string Username { get; set; } = string.Empty;
+        [ValidEnumValue(typeof(NotificationType))]
+        public NotificationType Type { get; set; }
+
         [Required]
-        public string Message { get; set; } = string.Empty;
+        public string Title { get; set; } = default!;
+
         [Required]
-        public Guid PostId { get; set; }
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        [ValidConstantValue(typeof(TargetTypeNames))]
-        public string NotificationType { get; set; } = string.Empty;
+        public string Message { get; set; } = default!;
+
+        public string? RelatedEntityId { get; set; }
+        public string? RelatedEntityType { get; set; }
+        public string? ActorUserId { get; set; }
     }
 }

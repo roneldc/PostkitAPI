@@ -1,8 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Postkit.Infrastructure.Data;
 using Postkit.Reactions.Interfaces;
+using Postkit.Reactions.Queries;
 using Postkit.Shared.Models;
+using Postkit.Tenant.Common;
 
 namespace Postkit.Reactions.Repositories
 {
@@ -10,54 +13,49 @@ namespace Postkit.Reactions.Repositories
     {
         private readonly PostkitDbContext context;
         private readonly ILogger<ReactionRepository> logger;
+        private readonly IHttpContextAccessor http;
 
-        public ReactionRepository(PostkitDbContext context, ILogger<ReactionRepository> logger)
+        public ReactionRepository(PostkitDbContext context, ILogger<ReactionRepository> logger, IHttpContextAccessor http)
         {
             this.context = context;
             this.logger = logger;
+            this.http = http;
         }
 
-        public IQueryable<Reaction> GetReactionsByPost()
+        public ReactionQueryBuilder CreateReactionQuery()
         {
-            logger.LogInformation("Fetching reactions query for all post from the database.");
-            return context.Reactions.AsQueryable();
+            logger.LogInformation("Creating a new ReactionQueryBuilder instance for reactions.");
+            return new ReactionQueryBuilder(context, http);
         }
 
-        public async Task<Reaction?> GetReactionsByUserPostAndTypeAsync(string userId, Guid postId, string type, Guid apiClientId)
+        public async Task<Reaction> CreateAsync(Reaction reaction)
         {
-            logger.LogInformation("Getting reaction with Post ID: {PostID}, User ID: {userId}, Type: {Type}, ApiClientId: {ApiClientId}", postId, userId, type, apiClientId);
-
-            return await context.Reactions
-                .FirstOrDefaultAsync(r => r.PostId == postId && r.UserId == userId && r.Type == type && r.ApiClientId == apiClientId);
-        }
-
-        public async Task AddAsync(Reaction reaction)
-        {
-            logger.LogInformation("Adding a new reaction: PostId={PostId}, UserId={UserId}, Type={Type}",
-                                  reaction.PostId, reaction.UserId, reaction.Type);
+            logger.LogInformation("Creating a new reaction with ID: {ReactionId} in the database", reaction.Id);
             context.Reactions.Add(reaction);
             await context.SaveChangesAsync();
+            return reaction;
+        }
+        public async Task<Reaction?> UpdateAsync(Reaction reaction)
+        {
+            logger.LogInformation("Updating reaction with ID: {ReactionId} in the database", reaction.Id);
+            context.Reactions.Update(reaction);
+            await context.SaveChangesAsync();
+            return reaction;
         }
 
-        public async Task Remove(Reaction reaction)
+        public async Task<bool> DeleteAsync(Guid postId, string userId)
         {
-            logger.LogInformation("Removing a reaction: PostId={PostId}, UserId={UserId}, Type={Type}",
-                                  reaction.PostId, reaction.UserId, reaction.Type);
+            logger.LogInformation("Deleting reaction with PostID {postId} and userId {userId}.", postId, userId);
+            var reaction = await context.Reactions
+                    .FirstOrDefaultAsync(r => r.PostId == postId && r.UserId == userId);
+
+            if (reaction == null) return false;
+
             context.Reactions.Remove(reaction);
             await context.SaveChangesAsync();
+            return true;
         }
 
-        public async Task<int> CountByPostAndTypeAsync(Guid postId, string type, Guid apiClientId)
-        {
-            logger.LogInformation("Counting reactions for PostId: {PostId} with Type: {Type}", postId, type);
-            return await context.Reactions.CountAsync(r => r.PostId == postId && r.Type == type && r.ApiClientId == apiClientId);
-        }
 
-        public async Task<bool> ExistsAsync(Guid postId, string userId, string type, Guid apiClientId)
-        {
-            logger.LogInformation("Checking if reaction exists for PostId: {PostId}, UserId: {UserId}, Type: {Type}", postId, userId, type);
-            return await context.Reactions
-                        .AnyAsync(r => r.PostId == postId && r.UserId == userId && r.Type == type && r.ApiClientId == apiClientId);
-        }
     }
 }

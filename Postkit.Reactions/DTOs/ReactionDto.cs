@@ -1,20 +1,19 @@
-﻿using Postkit.Shared.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Postkit.Identity.DTOs;
+using Postkit.Reactions.Extensions;
+using Postkit.Shared.Enum;
 
 namespace Postkit.Reactions.DTOs
 {
     public class ReactionDto
     {
-        public string TargetType { get; set; } = string.Empty;
-        public Guid PostId { get; set; }
-        public string UserId { get; set; } = string.Empty;
-        public string UserName { get; set; } = string.Empty;
-        public string Type { get; set; } = string.Empty;
+        public Guid Id { get; set; } = default!;
+        public Guid PostId { get; set; } = default!;
+        public ReactionType Type { get; set; }
         public DateTime CreatedAt { get; set; }
-        public Guid ApiClientId { get; set; }
+
+        public UserDto User { get; set; } = default!;
+
+        public string TypeName => Type.GetDisplayName();
+        public string Emoji => Type.GetEmoji();
     }
 }

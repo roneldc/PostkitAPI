@@ -1,66 +1,82 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Postkit.Shared.Models;
+using Postkit.Tenant.Interfaces;
 namespace Postkit.Infrastructure.Data
 {
     public class PostkitDbContext : IdentityDbContext<ApplicationUser>
     {
-        public PostkitDbContext(DbContextOptions<PostkitDbContext> options) : base(options)
+        private readonly ITenantProvider tenant;
+
+        public PostkitDbContext(DbContextOptions<PostkitDbContext> options, ITenantProvider tenant) : base(options)
         {
-        }
-
-        protected override void OnModelCreating(ModelBuilder builder)
-        {
-            base.OnModelCreating(builder);
-
-            builder.Entity<Post>()
-                .HasOne(p => p.User)
-                .WithMany()
-                .HasForeignKey(p => p.UserId)
-                .OnDelete(DeleteBehavior.NoAction);
-
-            builder.Entity<Comment>()
-                .HasOne(c => c.Post)
-                .WithMany(p => p.Comments)
-                .HasForeignKey(c => c.PostId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            builder.Entity<Comment>()
-                .HasOne(c => c.User)
-                .WithMany()
-                .HasForeignKey(c => c.UserId)
-                .OnDelete(DeleteBehavior.NoAction);
-
-            builder.Entity<Reaction>()
-                .HasOne(r => r.Post)
-                .WithMany(p => p.Reactions)
-                .HasForeignKey(r => r.PostId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            builder.Entity<Notification>()
-                .HasOne(n => n.User)
-                .WithMany()
-                .HasForeignKey(n => n.UserId)
-                .OnDelete(DeleteBehavior.NoAction);
-
-            builder.Entity<Notification>()
-                .HasOne(n => n.Post)
-                .WithMany()
-                .HasForeignKey(n => n.PostId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-
-            builder.Entity<ApplicationUser>()
-                .HasOne(u => u.ApiClient)
-                .WithMany(c => c.Users)
-                .HasForeignKey(u => u.ApiClientId)
-                .OnDelete(DeleteBehavior.Restrict);
+            this.tenant = tenant;
         }
 
         public DbSet<Post> Posts { get; set; } = null!;
         public DbSet<Comment> Comments { get; set; } = null!;
         public DbSet<Reaction> Reactions { get; set; } = null!;
-        public DbSet<Notification> Notifications { get; set; }
-        public DbSet<ApiClient> ApiClients { get; set; }
+        public DbSet<Notification> Notifications { get; set; } = null!;
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            builder.Entity<ApplicationUser>()
+                .HasIndex(u => u.Email)
+                .IsUnique(false);
+
+            builder.Entity<ApplicationUser>()
+                .HasIndex(u => new { u.Email, u.TenantId })
+                .IsUnique(true);
+
+            builder.Entity<ApplicationUser>().HasQueryFilter(x => x.TenantId == tenant.TenantId);
+            builder.Entity<Post>().HasQueryFilter(x => x.TenantId == tenant.TenantId);
+            builder.Entity<Comment>().HasQueryFilter(x => x.TenantId == tenant.TenantId);
+            builder.Entity<Reaction>().HasQueryFilter(x => x.TenantId == tenant.TenantId);
+            builder.Entity<Notification>().HasQueryFilter(x => x.TenantId == tenant.TenantId);
+
+            // Post -> Comments
+            builder.Entity<Post>()
+                .HasMany(p => p.Comments)
+                .WithOne(c => c.Post)
+                .HasForeignKey(c => c.PostId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            // Post -> Reactions
+            builder.Entity<Post>()
+                .HasMany(p => p.Reactions)
+                .WithOne(r => r.Post)
+                .HasForeignKey(r => r.PostId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            // Post -> User
+            builder.Entity<Post>()
+                .HasOne(n => n.User)
+                .WithMany()
+                .HasForeignKey(p => p.UserId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            // Comment -> User
+            builder.Entity<Comment>()
+                .HasOne(n => n.User)
+                .WithMany()
+                .HasForeignKey(c => c.UserId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            // Reaction -> User
+            builder.Entity<Reaction>()
+                .HasOne(n => n.User)
+                .WithMany()
+                .HasForeignKey(r => r.UserId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            // Notification -> User
+            builder.Entity<Notification>()
+                 .HasOne(n => n.User)
+                 .WithMany()
+                 .HasForeignKey(n => n.UserId)
+                 .OnDelete(DeleteBehavior.NoAction);
+
+            base.OnModelCreating(builder);
+        }
     }
 }

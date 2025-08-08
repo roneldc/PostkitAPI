@@ -1,4 +1,5 @@
-﻿using Postkit.Notifications.DTOs;
+﻿using Postkit.Identity.Mappers;
+using Postkit.Notifications.DTOs;
 using Postkit.Shared.Models;
 
 namespace Postkit.Notifications.Mappers
@@ -11,32 +12,16 @@ namespace Postkit.Notifications.Mappers
             return new NotificationDto
             {
                 Id = notification.Id,
+                Type = notification.Type,
+                Title = notification.Title,
                 Message = notification.Message,
+                RelatedEntityId = notification.RelatedEntityId,
+                RelatedEntityType = notification.RelatedEntityType,
                 IsRead = notification.IsRead,
-                PostId = notification.PostId,
-                CreatedAt = notification.CreatedAt
+                CreatedAt = notification.CreatedAt,
+                ReadAt = notification.ReadAt,
+                ActorUser = notification.ActorUser?.ToDto()
             };
-        }
-
-        public static Notification ToModel(this CreateNotificationDto dto, Guid apiClientId)
-        {
-            ArgumentNullException.ThrowIfNull(dto);
-
-            return new Notification
-            {
-                UserId = dto.UserId,
-                Username = dto.Username,
-                Message = dto.Message,
-                PostId = dto.PostId,
-                Type = dto.NotificationType,
-                ApiClientId = apiClientId
-            };
-        }
-
-        public static List<NotificationDto> ToDtoList(this IEnumerable<Notification> notifications)
-        {
-            ArgumentNullException.ThrowIfNull(notifications);
-            return notifications.Select(n => n.ToDto()).ToList();
         }
     }
 }

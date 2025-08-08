@@ -10,6 +10,7 @@
     <ProjectReference Include="..\Postkit.Infrastructure\Postkit.Infrastructure.csproj" />
     <ProjectReference Include="..\Postkit.Notifications\Postkit.Notifications.csproj" />
     <ProjectReference Include="..\Postkit.Shared\Postkit.Shared.csproj" />
+    <ProjectReference Include="..\Postkit.Tenant\Postkit.Tenant.csproj" />
   </ItemGroup>
 
 </Project>

@@ -7,16 +7,15 @@ namespace Poskit.Posts.DTOs
 {
     public class CreatePostDto
     {
-        public string Title { get; set; } = string.Empty;
-        [Required(ErrorMessage = "Content is required.")]
-        [StringLength(5000, MinimumLength = 10, ErrorMessage = "Content must be between 10 and 5000 characters.")]
-        public string Content { get; set; } = string.Empty;
-        [AllowedExtensions(new[] { ".jpg", ".jpeg", ".png", ".gif", ".mp4", ".mov", ".avi", ".webm", ".mkv" })]
-        [AllowedContentTypes(new[] {
-        "image/jpeg", "image/png", "image/gif",
-        "video/mp4", "video/quicktime", "video/x-msvideo", "video/webm", "video/x-matroska"
-        })]
-        [MaxFileSize(100 * 1024 * 1024)]
+        [StringLength(200, MinimumLength = 1)]
+        public string? Title { get; set; }
+
+        [Required]
+        [StringLength(5000, MinimumLength = 1)]
+        public string Content { get; set; } = default!;
+        [AllowedExtensions(new[] { ".jpg", ".jpeg", ".png", ".mp4" })]
+        [AllowedContentTypes(new[] { "image/jpeg", "image/png","video/mp4" })]
+        [MaxFileSize(20 * 1024 * 1024)]
         public IFormFile? Media { get; set; }
     }
 }
