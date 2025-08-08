@@ -7,24 +7,42 @@ using Microsoft.OpenApi.Models;
 using Poskit.Posts.Interfaces;
 using Poskit.Posts.Repository;
 using Poskit.Posts.Services;
-using Postkit.API.Middleware;
+using Postkit.API.Exceptions;
 using Postkit.Comments.Interfaces;
+using Postkit.Comments.Queries;
 using Postkit.Comments.Repository;
 using Postkit.Comments.Services;
 using Postkit.Identity.Interfaces;
 using Postkit.Identity.Services;
+using Postkit.Infrastructure.CurrentUser;
 using Postkit.Infrastructure.Data;
+using Postkit.Infrastructure.Email;
+using Postkit.Infrastructure.Jwt;
+using Postkit.Infrastructure.Media;
 using Postkit.Notifications.Hubs;
 using Postkit.Notifications.Interfaces;
 using Postkit.Notifications.Repositories;
 using Postkit.Notifications.Services;
-using Postkit.Posts.Interfaces;
-using Postkit.Posts.Services;
+using Postkit.Posts.Queries;
 using Postkit.Reactions.Interfaces;
+using Postkit.Reactions.Queries;
 using Postkit.Reactions.Repositories;
 using Postkit.Reactions.Services;
-using Postkit.Shared.Constants;
+using Postkit.Shared.Abstractions;
+using Postkit.Shared.Enum;
+using Postkit.Shared.Interfaces.Auth;
+using Postkit.Shared.Interfaces.Cloudinary;
+using Postkit.Shared.Interfaces.MailJet;
+using Postkit.Shared.Interfaces.Posts;
+using Postkit.Shared.Interfaces.Queries;
 using Postkit.Shared.Models;
+using Postkit.Tenant.Data;
+using Postkit.Tenant.Interfaces;
+using Postkit.Tenant.Middleware;
+using Postkit.Tenant.Model;
+using Postkit.Tenant.Providers;
+using Postkit.Tenant.Repository;
+using Postkit.Tenant.Services;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -32,6 +50,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddControllers();
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -68,7 +87,14 @@ builder.Services.AddSwaggerGen(options =>
     options.AddSecurityRequirement(securityRequirement);
     options.EnableAnnotations();
 });
+
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
+
 builder.Services.AddDbContext<PostkitDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("PostkitApiConnection")));
+
+builder.Services.AddDbContext<TenantDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("PostkitApiConnection")));
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
@@ -85,10 +111,11 @@ builder.Services.AddSignalR()
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
-
+builder.Services.AddScoped<ITenantRepository, TenantRepository>();
+builder.Services.AddScoped<ITenantService, TenantService>();
+builder.Services.AddScoped<ITenantProvider, HeaderTenantProvider>();
 builder.Services.AddScoped<IPostRepository, PostRepository>();
 builder.Services.AddScoped<IPostService, PostService>();
-builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 builder.Services.AddScoped<ICommentService, CommentService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
@@ -97,7 +124,12 @@ builder.Services.AddScoped<IReactionRepository, ReactionRepository>();
 builder.Services.AddScoped<IReactionService, ReactionService>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
-builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
+builder.Services.AddScoped<ICloudinaryUploader, CloudinaryService>();
+builder.Services.AddScoped<IPostQueryBuilder, PostQueryBuilder>();
+builder.Services.AddScoped<ICommentQueryBuilder, CommentQueryBuilder>();
+builder.Services.AddScoped<IReactionQueryBuilder, ReactionQueryBuilder>();
+builder.Services.AddScoped<IPostQueryBuilder, PostQueryBuilder>();
+builder.Services.AddScoped<ICloudinaryUploader, CloudinaryService>();
 builder.Services.AddTransient<IMailService, MailjetMailService>();
 
 builder.Services.AddAuthentication(options =>
@@ -137,11 +169,10 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("AdminOrUser", policy =>
-        policy.RequireRole(UserRoles.Admin, UserRoles.User));
+    options.AddPolicy("AdminOrTenantAdmin", policy =>
+        policy.RequireRole(UserRole.SuperAdmin.ToString(), UserRole.TenantAdmin.ToString()));
 });
 
-builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddLogging();
 
 var allowedOrigins = builder.Configuration
@@ -166,6 +197,27 @@ builder.Services.AddApiVersioning(options =>
     options.ReportApiVersions = true;
 });
 
+builder.Services.Configure<MailJetSettings>(
+    builder.Configuration.GetSection("MailJet"));
+
+builder.Services.Configure<CloudinarySettings>(
+    builder.Configuration.GetSection("Cloudinary"));
+
+builder.Services.Configure<JwtSettings>(
+    builder.Configuration.GetSection("JWT"));
+
+builder.Services.Configure<ApplicationUrlSettings>(
+    builder.Configuration.GetSection("ApplicationUrl"));
+
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Logging.AddDebug();
+
+if(builder.Environment.IsProduction())
+{
+    builder.Logging.AddJsonConsole();
+}
+
 var app = builder.Build();
 
 var enableSwagger = builder.Configuration.GetValue<bool>("EnableSwagger");
@@ -182,26 +234,42 @@ if (enableSwagger)
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    using (var scope = app.Services.CreateScope())
-    {
-        var dbContext = scope.ServiceProvider.GetRequiredService<PostkitDbContext>();
-        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-
-        await DbSeeder.SeedAsync(dbContext, userManager, roleManager);
-    }
 }
 
-app.UseExceptionHandler(_ => { });
+app.UseExceptionHandler();
 
 app.UseCors("ConfiguredCors");
 
 app.UseRouting();
 
-app.UseMiddleware<ApiKeyMiddleware>();
+// admin: only global admin key can call
+app.UseWhen(ctx => ctx.Request.Path.Equals("/api/v1/tenants", StringComparison.OrdinalIgnoreCase),
+       branch => branch.UseGlobalAdminApiKey()
+);
 
-app.UseAuthentication();
-app.UseAuthorization();
+// tenant-onboarding: per-tenant API key
+app.UseWhen(
+    ctx => ctx.Request.Path.Equals("/api/v1/account/register-admin"),
+    branch =>
+    {
+        branch.UseTenantApiKey();
+        branch.UseTenantResolution();
+    }
+);
+
+// end-user endpoints: tenant id and JWT authentication
+app.UseWhen(
+    ctx => !ctx.Request.Path.StartsWithSegments("/api/v1/tenants")
+           && !ctx.Request.Path.StartsWithSegments("/api/v1/tenants/confirm")
+           && !ctx.Request.Path.StartsWithSegments("/api/v1/accounts/confirm-email")
+           && !ctx.Request.Path.StartsWithSegments("/api/health"),
+    branch =>
+    {
+        branch.UseTenantResolution();
+        branch.UseAuthentication();
+        branch.UseAuthorization();
+    }
+);
 
 app.MapHub<NotificationHub>("/hubs/notifications");
 

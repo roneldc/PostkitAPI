@@ -3,13 +3,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Postkit.Comments.DTOs;
 using Postkit.Comments.Interfaces;
-using Postkit.Comments.Queries;
+using Postkit.Shared.Interfaces.Auth;
 using Postkit.Shared.Responses;
 using Swashbuckle.AspNetCore.Annotations;
 namespace Postkit.API.Controllers
 {
     [ApiController]
-    [Route("api/v{version:apiVersion}/comments")]
+    [Route("api/v{version:apiVersion}/post/{postId:guid}/comments")]
     [ApiVersion("1.0")]
     [ApiExplorerSettings(GroupName = "v1")]
     [SwaggerTag("Handles user comments on posts. Supports public viewing, and authenticated comment creation/deletion.")]
@@ -17,77 +17,127 @@ namespace Postkit.API.Controllers
     {
         private readonly ICommentService commentService;
         private readonly ILogger<CommentController> logger;
+        private readonly ICurrentUserService currentUser;
 
-        public CommentController(ICommentService commentService, ILogger<CommentController> logger)
+        public CommentController(ICommentService commentService, ILogger<CommentController> logger, ICurrentUserService currentUser)
         {
             this.commentService = commentService;
             this.logger = logger;
+            this.currentUser = currentUser;
         }
 
         /// <summary>
-        /// Get all comments for a specific post.
+        /// Get all public comments for a specific post.
         /// </summary>
         /// <remarks>Publicly accessible endpoint to retrieve all comments associated with a post.</remarks>
         /// <param name="postId">ID of the post</param>
-        /// <param name="query">Optional query filters</param>
         /// <response code="200">Returns list of comments</response>
-        [HttpGet("/post/{postId}")]
+        [HttpGet]
         [AllowAnonymous]
-        [SwaggerOperation(Summary = "Get comments by post ID", Description = "Returns all comments for a given post ID.")]
-        [SwaggerResponse(200, "Comments returned successfully", typeof(List<CommentDto>))]
-        public async Task<IActionResult> GetCommentsByPostId([FromRoute] Guid postId, [FromQuery] CommentQuery query)
+        [SwaggerOperation(Summary = "Get all comments", Description = "Retrieves a list of public comments. Supports pagination and filtering.")]
+        [SwaggerResponse(200, "Comments retrieved successfully", typeof(ApiResponse<PagedResponse<CommentDto>>))]
+        public async Task<IActionResult> GetAllComments([FromRoute] Guid postId, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
-            logger.LogInformation("GET api/comments/post/{PostId} endpoint called", postId);
-            var apiClientId = (Guid)HttpContext.Items["ApiClientId"]!;
-            var comments = await commentService.GetCommentsByPost(postId, query, apiClientId);
-
-            return Ok(ApiResponse<PagedResponse<CommentDto>>.SuccessResponse(comments, "Comments retrieved successfully."));
+            logger.LogInformation("GET api/post/{PostId}/comments endpoint called with page {Page}, and pageSize {PageSize}", postId, page, pageSize);
+            var result = await commentService.GetCommentsByPostAsync(postId, page, pageSize);
+            return Ok(ApiResponse<PagedResponse<CommentDto>>.SuccessResponse("Comments retrieved successfully.", result));
         }
 
         /// <summary>
-        /// Add a new comment to a post.
+        /// Get a single comment by ID.
         /// </summary>
-        /// <remarks>Requires authentication (Admin or User).</remarks>
+        /// <param name="commentId">Comment ID</param>
+        /// <remarks>Retrieves a single comment by its ID</remarks>
+        /// <response code="200">Comment found</response>
+        /// <response code="404">Comment not found</response>
+        [HttpGet("{commentId:int}")]
+        [AllowAnonymous]
+        [SwaggerOperation(Summary = "Get comment by ID", Description = "Retrieves a single comment by its ID.")]
+        [SwaggerResponse(200, "Comment retrieved successfully", typeof(ApiResponse<CommentDto>))]
+        [SwaggerResponse(404, "Comment not found")]
+        public async Task<IActionResult> GetComment([FromRoute] Guid postId, [FromRoute] int commentId)
+        {
+            logger.LogInformation("GET api/post/{postId}/comments/{CommentId} endpoint called", postId, commentId);
+            var comment = await commentService.GetCommentByIdAsync(commentId);
+            return Ok(ApiResponse<CommentDto>.SuccessResponse("Comment retrieved successfully.", comment));
+        }
+
+        /// <summary>
+        /// Create a new comment
+        /// </summary>
+        /// <remarks>Requires Admin or User role.</remarks>
         /// <response code="201">Comment created successfully</response>
-        /// <response code="400">Invalid input</response>
         /// <response code="401">Unauthorized</response>
         [HttpPost]
-        [Authorize(Policy = "AdminOrUser")]
-        [SwaggerOperation(Summary = "Add comment", Description = "Adds a new comment to a post. Requires Admin or User role.")]
-        [SwaggerResponse(201, "Comment created successfully", typeof(CommentDto))]
+        [Authorize]
+        [SwaggerOperation(Summary = "Create comment", Description = "Adds a new comment to a post. Requires Admin or User role.")]
+        [SwaggerResponse(201, "Comment created successfully", typeof(ApiResponse<CommentDto>))]
         [SwaggerResponse(400, "Invalid input")]
         [SwaggerResponse(401, "Unauthorized")]
-        public async Task<IActionResult> AddComment([FromBody] CreateCommentDto dto)
+        public async Task<IActionResult> CreateComment([FromRoute] Guid postId, [FromBody] CreateCommentDto dto)
         {
-            logger.LogInformation("POST api/comments endpoint called with data: {Dto}", dto);
-            var createdComment = await commentService.CreateAsync(dto);
-
-            return CreatedAtAction(nameof(GetCommentsByPostId), new { postId = dto.PostId },
-                ApiResponse<CommentDto>.SuccessResponse(createdComment, "Comment created successfully."));
+            logger.LogInformation("POST api/post/{postId}/comments endpoint called with data {@Dto}", postId, dto);
+            
+            var userId = currentUser.UserId!;
+            var comment = await commentService.CreateCommentAsync(postId, dto, userId);
+            return CreatedAtAction(
+                nameof(GetComment),
+                new { postId, commentId = comment!.Id},
+                ApiResponse<CommentDto>.SuccessResponse("Comment created successfully", comment));
         }
 
         /// <summary>
-        /// Soft delete a comment.
+        /// Update an existing comment
         /// </summary>
-        /// <remarks>Requires ownership of the comment or Admin role.</remarks>
-        /// <param name="id">Comment ID</param>
-        /// <response code="204">Comment deleted successfully</response>
-        /// <response code="403">Forbidden (not owner or admin)</response>
+        /// <param name="commentId">Comment ID</param>
+        /// <response code="200">Comment updated</response>
+        /// <response code="400">Invalid data</response>
+        /// <response code="401">Unauthorized</response>
+        /// <response code="403">Forbidden access</response>
         /// <response code="404">Comment not found</response>
-        [HttpDelete("{id:int}")]
-        [Authorize(Policy = "AdminOrUser")]
-        [SwaggerOperation(Summary = "Delete comment", Description = "Soft deletes a comment. Only the owner or an admin can delete.")]
-        [SwaggerResponse(204, "Comment deleted successfully")]
-        [SwaggerResponse(403, "Forbidden")]
+        [HttpPut("{commentId:int}")]
+        [Authorize]
+        [SwaggerOperation(Summary = "Update comment", Description = "Updates an existing comment. Requires Admin or User role.")]
+        [SwaggerResponse(204, "Comment updated")]
+        [SwaggerResponse(400, "Invalid input")]
+        [SwaggerResponse(401, "Unauthorized")]
+        [SwaggerResponse(403, "Forbidded access")]
         [SwaggerResponse(404, "Comment not found")]
-        public async Task<IActionResult> DeleteComment([FromRoute] int id)
+        public async Task<IActionResult> UpdateComment([FromRoute] Guid postId, [FromRoute] int commentId, [FromBody] UpdateCommentDto dto)
         {
-            logger.LogInformation("DELETE api/comments/{Id} endpoint called", id);
-            var deletedPost = await commentService.DeleteAsync(id);
-
-            return deletedPost
+            logger.LogInformation("PUT api/post/{postId}/comments/{commentId} endpoint called with data {@Dto}", postId, commentId, dto);
+            var userId = currentUser.UserId!;
+            var updated = await commentService.UpdateCommentAsync(commentId, dto, userId);
+            return updated
                 ? NoContent()
-                : NotFound(ApiResponse<bool>.ErrorResponse("Comment not found.", 404));
+                : NotFound();
+        }
+
+        /// <summary>
+        /// Delete a comment.
+        /// </summary>
+        /// <param name="commentId">Comment ID</param>
+        /// <response code="200">Comment deleted</response>
+        /// <response code="400">Invalid data</response>
+        /// <response code="401">Unauthorized</response>
+        /// <response code="403">Forbidden access</response>
+        /// <response code="404">Comment not found</response>
+        [HttpDelete("{commentId:int}")]
+        [Authorize]
+        [SwaggerOperation(Summary = "Delete comment", Description = "Deletes a comment by its ID. Requires Admin or User role.")]
+        [SwaggerResponse(204, "Comment deleted")]
+        [SwaggerResponse(400, "Invalid input")]
+        [SwaggerResponse(401, "Unauthorized")]
+        [SwaggerResponse(403, "Forbidded access")]
+        [SwaggerResponse(404, "Comment not found")]
+        public async Task<IActionResult> DeleteComment([FromRoute] Guid postId, [FromRoute] int commentId)
+        {
+            logger.LogInformation("DELETE api/post/{postId}/comments/{CommentId} endpoint called", postId, commentId);
+            var userId = currentUser.UserId!;
+            var deleted = await commentService.DeleteCommentAsync(commentId, userId);
+            return deleted
+               ? NoContent()
+               : NotFound();
         }
     }
 }

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -24,6 +24,12 @@
   <ItemGroup>
     <ProjectReference Include="..\Postkit.Posts\Postkit.Posts.csproj" />
     <ProjectReference Include="..\Postkit.API\Postkit.API.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Helpers\" />
+    <Folder Include="Mappers\" />
+    <Folder Include="Services\" />
   </ItemGroup>
 
 </Project>

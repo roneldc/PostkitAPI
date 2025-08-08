@@ -1,70 +1,90 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Postkit.Infrastructure.Data;
 using Postkit.Notifications.Interfaces;
+using Postkit.Notifications.Queries;
 using Postkit.Shared.Models;
+using Postkit.Tenant.Common;
 namespace Postkit.Notifications.Repositories
 {
     public class NotificationRepository : INotificationRepository
     {
         private readonly PostkitDbContext context;
         private readonly ILogger<NotificationRepository> logger;
+        private readonly IHttpContextAccessor http;
 
-        public NotificationRepository(PostkitDbContext context, ILogger<NotificationRepository> logger)
+        public NotificationRepository(PostkitDbContext context, 
+            ILogger<NotificationRepository> logger,
+            IHttpContextAccessor http)
         {
             this.context = context;
             this.logger = logger;
-        }
-        public IQueryable<Notification> GetAllAsync()
-        {
-            logger.LogInformation("Fetching all notifications");
-            return context.Notifications.AsQueryable();
+            this.http = http;
         }
 
-        public async Task<List<Notification>> GetUnreadAsync(string userId)
+        public NotificationQueryBuilder CreateNotificationQuery()
         {
-            logger.LogInformation("Fetching all unread notifications for user with ID: {UserId}", userId);
-
-            return await context.Notifications
-           .Where(n => n.UserId == userId && !n.IsRead)
-           .OrderByDescending(n => n.CreatedAt)
-           .ToListAsync();
+            logger.LogInformation("Creating a new NotificationQueryBuilder instance for notifications.");
+            return new NotificationQueryBuilder(context, http.HttpContext.GetTenantId());
         }
 
-        public async Task AddAsync(Notification notification)
+        public async Task<Notification> CreateAsync(Notification notification)
         {
-            logger.LogInformation("Adding a new notification to the database.");
-
+            logger.LogInformation("Creating a new notification with ID: {NotificationId} in the database", notification.Id);
             context.Notifications.Add(notification);
             await context.SaveChangesAsync();
+            return notification;
         }
 
-        public async Task MarkAsReadAsync(Guid id)
+        public async Task<bool> MarkAsReadAsync(string notificationId, string userId)
         {
-            logger.LogInformation("Updating notification with ID {NotificationId} to 'read' status in the database", id);
+            logger.LogInformation("Updating notification with ID: {NotificationId} for user {UserId} to mark as read.", notificationId, userId);
+            var notification = await context.Notifications
+                .FirstOrDefaultAsync(n => n.Id == notificationId && n.UserId == userId);
 
-            var notification = await context.Notifications.FindAsync(id);
-            if (notification != null && !notification.IsRead)
-            {
-                notification.IsRead = true;
-                await context.SaveChangesAsync();
-            }
+            if (notification == null || notification.IsRead)
+                return false;
+
+            notification.IsRead = true;
+            notification.ReadAt = DateTime.UtcNow;
+
+            await context.SaveChangesAsync();
+            return true;
         }
 
-        public async Task MarkAllAsReadAsync(string userId)
+        public async Task<bool> MarkAllAsReadAsync(string userId)
         {
-            logger.LogInformation("Updating all notification with User ID {NotificationId} to 'read' status in the database", userId);
-
-            var notifications = await context.Notifications
+            logger.LogInformation("Marking all unread notifications as read for user {UserId}.", userId);
+            var unreadNotifications = await context.Notifications
                 .Where(n => n.UserId == userId && !n.IsRead)
                 .ToListAsync();
 
-            foreach (var notification in notifications)
+            if (!unreadNotifications.Any())
+                return false;
+
+            foreach (var notification in unreadNotifications)
             {
                 notification.IsRead = true;
+                notification.ReadAt = DateTime.UtcNow;
             }
 
             await context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> DeleteAsync(string notificationId, string userId)
+        {
+            logger.LogInformation("Deleting notification with ID: {NotificationId} for user {UserId}.", notificationId, userId);
+            var notification = await context.Notifications
+                .FirstOrDefaultAsync(n => n.Id == notificationId && n.UserId == userId);
+
+            if (notification == null)
+                return false;
+
+            context.Notifications.Remove(notification);
+            await context.SaveChangesAsync();
+            return true;
         }
     }
 }

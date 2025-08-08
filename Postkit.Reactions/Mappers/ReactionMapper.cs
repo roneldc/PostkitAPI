@@ -1,10 +1,7 @@
 ﻿using Postkit.Reactions.DTOs;
+using Postkit.Identity.Mappers;
 using Postkit.Shared.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Postkit.Identity.DTOs;
 
 namespace Postkit.Reactions.Mappers
 {
@@ -16,13 +13,11 @@ namespace Postkit.Reactions.Mappers
 
             return new ReactionDto
             {
-                TargetType = reaction.TargetType,
-                PostId = reaction.PostId,
-                UserId = reaction.UserId,
-                UserName = reaction.User!.UserName!,
+                Id = reaction.Id,
                 Type = reaction.Type,
-                CreatedAt = DateTime.UtcNow,
-                ApiClientId = reaction.ApiClientId,
+                CreatedAt = reaction.CreatedAt,
+                User = reaction.User?.ToDto() ?? new UserDto(),
+                PostId = reaction.PostId
             };
         }
     }

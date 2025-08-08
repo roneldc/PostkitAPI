@@ -1,12 +1,13 @@
-﻿using Postkit.Shared.Models;
+﻿using Postkit.Comments.Queries;
+using Postkit.Shared.Models;
 
 namespace Postkit.Comments.Interfaces
 {
     public interface ICommentRepository
     {
-        IQueryable<Comment> GetCommentsByPost();
-        Task<Comment?> GetByIdAsync(int id);
-        Task<Comment> AddAsync(Comment comment);
-        Task DeleteAsync(Comment comment);
+        CommentQueryBuilder CreateCommentQuery();
+        Task<Comment> CreateAsync(Comment comment);
+        Task<Comment?> UpdateAsync(Comment comment);
+        Task<bool> DeleteAsync(Comment comment);
     }
 }

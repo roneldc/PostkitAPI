@@ -1,123 +1,159 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Postkit.Identity.Interfaces;
+﻿using Microsoft.Extensions.Logging;
 using Postkit.Notifications.Interfaces;
 using Postkit.Reactions.DTOs;
 using Postkit.Reactions.Interfaces;
-using Postkit.Reactions.Queries;
-using Postkit.Shared.Constants;
-using Postkit.Shared.Models;
 using Postkit.Reactions.Mappers;
+using Postkit.Shared.Interfaces.Auth;
+using Postkit.Shared.Interfaces.Posts;
+using Postkit.Shared.Models;
 using Postkit.Shared.Responses;
 
 namespace Postkit.Reactions.Services
 {
     public class ReactionService : IReactionService
     {
-        private readonly IReactionRepository reactionRepo;
+        private readonly IReactionRepository reactionRepository;
         private readonly ILogger<ReactionService> logger;
         private readonly ICurrentUserService currentUserService;
         private readonly INotificationService notificationService;
+        private readonly IPostRepository postRepository;
 
-        public ReactionService(IReactionRepository reactionRepo,
+        public ReactionService(IReactionRepository reactionRepository,
             ILogger<ReactionService> logger,
             ICurrentUserService currentUserService,
-            INotificationService notificationService)
+            INotificationService notificationService,
+            IPostRepository postRepository)
         {
-            this.reactionRepo = reactionRepo;
+            this.reactionRepository = reactionRepository;
             this.logger = logger;
             this.currentUserService = currentUserService;
             this.notificationService = notificationService;
+            this.postRepository = postRepository;
         }
 
-        public async Task<PagedResponse<ReactionDto>> GetReactionByPostAsync(Guid postId, ReactionQuery query)
+        public async Task<PagedResponse<ReactionDto>> GetReactionsByPostAsync(Guid postId, int page, int pageSize)
         {
-            logger.LogInformation("Getting reactions for a post with ID: {postId}", postId);
-            var reactionsQuery = reactionRepo.GetReactionsByPost();
+            logger.LogInformation("Fetching reactions for post {PostId} on page {Page} with page size {PageSize}", postId, page, pageSize);
 
-            reactionsQuery = query.ApplyFilters(reactionsQuery);
+            var reactions = await reactionRepository.CreateReactionQuery()
+               .ByPostId(postId)
+               .WithUser()
+               .OrderByNewest()
+               .Paginate(page, pageSize)
+               .AsNoTracking()
+               .ToListAsync();
 
-            var totalCount = await reactionsQuery.CountAsync();
+            var totalCount = await reactionRepository.CreateReactionQuery()
+                .ByPostId(postId)
+                .CountAsync();
 
-            reactionsQuery = reactionsQuery
-                .Include(r => r.Post)
-                .Include(r => r.User)
-                .Where(r => r.PostId == postId);
+            var reactionDtos = reactions.Select(r => r.ToDto()).ToList();
 
-            var pagedReactions = await reactionsQuery
-                .Skip((query.Page - 1) * query.PageSize)
-                .Take(query.PageSize)
-                .Select(r => r.ToDto())
-                .ToListAsync();
+            logger.LogInformation("Fetched {Count} reactions for post {PostId} on page {Page}",
+                               reactionDtos.Count, postId, page);
 
             return new PagedResponse<ReactionDto>
             {
-                Data = pagedReactions,
-                Pagination = new PaginationMetadata()
-                {
-                    CurrentPage = query.Page,
-                    PageSize = query.PageSize,
-                    TotalItems = totalCount,
-                    TotalPages = (int)Math.Ceiling((double)totalCount / query.PageSize)
-                }
+                Items = reactionDtos,
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize,
+                TotalPages = (int)Math.Ceiling((double)totalCount / pageSize)
             };
         }
 
-        public async Task<ReactionInfoDto> ToggleReactionAsync(ReactionToggleDto dto)
+        public async Task<ReactionSummaryDto> GetReactionSummaryAsync(Guid postId, string? currentUserId = null)
         {
-            var userId = currentUserService.UserId ?? throw new UnauthorizedAccessException("User is not authenticated.");
-            var apiClientId = currentUserService.ApiClientId;
+            logger.LogInformation("Fetching reaction summary for post {PostId} for user {UserId}", postId, currentUserId ?? "anonymous");
 
-            logger.LogInformation("Toggling reaction. PostId: {PostId}, UserId: {UserId}, ReactionType: {ReactionType}, ApiClientId: {ApiClientId}",
-                dto.PostId, userId, dto.ReactionType, apiClientId);
+            // Get all reactions for the post
+            var reactions = await reactionRepository.CreateReactionQuery()
+                .ByPostId(postId)
+                .AsNoTracking()
+                .ToListAsync();
 
-            var existingReaction = await reactionRepo.GetReactionsByUserPostAndTypeAsync(userId, dto.PostId, dto.ReactionType, apiClientId);
+            // Group by reaction type
+            var counts = reactions
+                .GroupBy(r => r.Type)
+                .ToDictionary(g => g.Key, g => g.Count());
+
+            // Get current user's reaction
+            var currentUserReaction = reactions
+                .FirstOrDefault(r => r.UserId == currentUserId)?.Type;
+
+            logger.LogInformation("Reaction summary for post {PostId}: {TotalCount} reactions, CurrentUserReaction: {CurrentUserReaction}",
+                               postId, reactions.Count, currentUserReaction);
+
+            return new ReactionSummaryDto
+            {
+                TotalCount = reactions.Count,
+                Counts = counts,
+                CurrentUserReaction = currentUserReaction
+            };
+        }
+
+        public async Task<ReactionSummaryDto> ToggleReactionAsync(Guid postId, ToggleReactionDto dto, string userId)
+        {
+            logger.LogInformation("Toggling reaction for post {PostId} by user {UserId} with reaction type {ReactionType}",
+                               postId, userId, dto.Type);
+
+            // Check if user already has a reaction on this post
+            var existingReaction = await reactionRepository.CreateReactionQuery()
+                .ByPostId(postId)
+                .ByUserId(userId)
+                .FirstOrDefaultAsync();
 
             if (existingReaction != null)
             {
-                await reactionRepo.Remove(existingReaction);
-                logger.LogInformation("Removed existing reaction. PostId: {PostId}, UserId: {UserId}, ReactionType: {ReactionType}",
-                    dto.PostId, userId, dto.ReactionType);
+                if (existingReaction.Type == dto.Type)
+                {
+                    // Same reaction type - remove it (toggle off)
+                    logger.LogInformation("Removing existing reaction for post {PostId} by user {UserId} with reaction type {ReactionType}",
+                                               postId, userId, dto.Type);
+                    await reactionRepository.DeleteAsync(postId, userId);
+                }
+                else
+                {
+                    // Different reaction type - update it
+                    logger.LogInformation("Updating existing reaction for post {PostId} by user {UserId} from {OldType} to {NewType}",
+                                                                      postId, userId, existingReaction.Type, dto.Type);
+                    existingReaction.Type = dto.Type;
+                    existingReaction.UpdatedAt = DateTime.UtcNow;
+                    await reactionRepository.UpdateAsync(existingReaction);
+                }
             }
             else
             {
+                // No existing reaction - create new one
+                logger.LogInformation("Creating new reaction for post {PostId} by user {UserId} with reaction type {ReactionType}",
+                                                                  postId, userId, dto.Type);
                 var newReaction = new Reaction
                 {
-                    PostId = dto.PostId,
+                    PostId = postId,
                     UserId = userId,
-                    TargetType = dto.TargetType,
-                    Type = dto.ReactionType,
-                    CreatedAt = DateTime.UtcNow,
-                    ApiClientId = apiClientId
+                    TenantId = currentUserService.TenantId!,
+                    Type = dto.Type
                 };
 
-                await reactionRepo.AddAsync(newReaction);
-                logger.LogInformation("Added new reaction. PostId: {PostId}, UserId: {UserId}, ReactionType: {ReactionType}",
-                    dto.PostId, userId, dto.ReactionType);
-
-                await notificationService.NotifyPostReactionAsync(dto.PostUserId, dto.PostId, NotificationTypeNames.Reaction);
-                logger.LogInformation("Notification sent to PostOwner: {PostUserId} for Reaction on PostId: {PostId}",
-                    dto.PostUserId, dto.PostId);
+                await reactionRepository.CreateAsync(newReaction);
             }
 
-            var updatedCount = await reactionRepo.CountByPostAndTypeAsync(dto.PostId, dto.ReactionType, apiClientId);
-
-            return new ReactionInfoDto
+            if (existingReaction == null)
             {
-                ReactionsCount = updatedCount,
-                UserHasReacted = existingReaction == null
-            };
-        }
+                var post = await postRepository.CreatePostQuery()
+                    .ById(postId)
+                    .WithAuthor()
+                    .FirstOrDefaultAsync();
 
-        public async Task<bool> UserHasReactedAsync(Guid postId, string type)
-        {
-            var userId = currentUserService.UserId ?? throw new UnauthorizedAccessException("User is not authenticated.");
-            var apiClientId = currentUserService.ApiClientId;
+                if (post != null)
+                {
+                    logger.LogInformation("Creating notification for post {PostId} by user {UserId} with reaction type {ReactionType}", postId, userId, dto.Type);
+                    await notificationService.CreatePostReactedNotificationAsync(postId, post.UserId, userId);
+                }
+            }
 
-            logger.LogInformation("Checking user reaction. PostId: {PostId}, UserId: {UserId}, ReactionType: {ReactionType}, ApiClientId: {ApiClientId}",
-                postId, userId, type, apiClientId);
-
-            return await reactionRepo.ExistsAsync(postId, userId, type, apiClientId);
+            // Return updated summary
+            return await GetReactionSummaryAsync(postId, userId);
         }
     }
 }

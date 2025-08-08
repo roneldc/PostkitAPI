@@ -1,8 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Postkit.Comments.Interfaces;
+using Postkit.Comments.Queries;
 using Postkit.Infrastructure.Data;
 using Postkit.Shared.Models;
+using Postkit.Tenant.Common;
 
 namespace Postkit.Comments.Repository
 {
@@ -10,45 +12,43 @@ namespace Postkit.Comments.Repository
     {
         private readonly PostkitDbContext context;
         private readonly ILogger<CommentRepository> logger;
+        private readonly IHttpContextAccessor http;
 
-        public CommentRepository(PostkitDbContext context, ILogger<CommentRepository> logger)
+        public CommentRepository(PostkitDbContext context, ILogger<CommentRepository> logger, IHttpContextAccessor http)
         {
             this.context = context;
             this.logger = logger;
+            this.http = http;
         }
 
-        public IQueryable<Comment> GetCommentsByPost()
+        public CommentQueryBuilder CreateCommentQuery()
         {
-            logger.LogInformation("Fetching comments query for all posts from the database.");
-            return context.Comments.AsQueryable();
+            logger.LogInformation("Creating a new CreateQueryBuilder instance for comments.");
+            return new CommentQueryBuilder(context, http);
         }
 
-        public async Task<Comment?> GetByIdAsync(int id)
+        public async Task<Comment> CreateAsync(Comment comment)
         {
-            logger.LogInformation("Fetching comment with ID: {id} from the database.", id);
-            return await context.Comments
-                .Include(c => c.User)
-                .FirstOrDefaultAsync(c => c.Id == id);
-        }
-
-        public async Task<Comment> AddAsync(Comment comment)
-        {
-            logger.LogInformation("Adding a new comment to the database for post with ID: {postId}.", comment.PostId);
+            logger.LogInformation("Creating a new comment with ID: {CommentId} in the database", comment.Id);
             context.Comments.Add(comment);
             await context.SaveChangesAsync();
-            var addedComment = await context.Comments
-                .Include(c => c.Post)
-                .Include(c => c.User)
-                .FirstOrDefaultAsync(c => c.Id == comment.Id);
-
-            return addedComment!;
+            return comment;
         }
 
-        public async Task DeleteAsync(Comment comment)
+        public async Task<Comment?> UpdateAsync(Comment comment)
+        {
+            logger.LogInformation("Updating comment with ID: {CommentId} in the database", comment.Id);
+            context.Comments.Update(comment);
+            await context.SaveChangesAsync();
+            return comment;
+        }
+
+        public async Task<bool> DeleteAsync(Comment comment)
         {
             logger.LogInformation("Deleting comment with ID: {id} from the database.", comment.Id);
             context.Comments.Remove(comment);
             await context.SaveChangesAsync();
+            return true;
         }
     }
 }
