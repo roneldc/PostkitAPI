@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Postkit.Identity.DTOs
+namespace Postkit.Identity.DTOs.Account
 {
     public class AssignRoleDto
     {

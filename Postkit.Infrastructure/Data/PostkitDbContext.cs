@@ -17,6 +17,7 @@ namespace Postkit.Infrastructure.Data
         public DbSet<Comment> Comments { get; set; } = null!;
         public DbSet<Reaction> Reactions { get; set; } = null!;
         public DbSet<Notification> Notifications { get; set; } = null!;
+        public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -33,6 +34,7 @@ namespace Postkit.Infrastructure.Data
             builder.Entity<Comment>().HasQueryFilter(x => x.TenantId == tenant.TenantId);
             builder.Entity<Reaction>().HasQueryFilter(x => x.TenantId == tenant.TenantId);
             builder.Entity<Notification>().HasQueryFilter(x => x.TenantId == tenant.TenantId);
+            builder.Entity<RefreshToken>().HasQueryFilter(x => x.TenantId == tenant.TenantId);
 
             // Post -> Comments
             builder.Entity<Post>()
@@ -75,6 +77,26 @@ namespace Postkit.Infrastructure.Data
                  .WithMany()
                  .HasForeignKey(n => n.UserId)
                  .OnDelete(DeleteBehavior.NoAction);
+
+            // RefreshToken configuration
+            builder.Entity<RefreshToken>(entity =>
+            {
+                entity.HasKey(rt => rt.Id);
+
+                entity.Property(rt => rt.Token)
+                    .HasMaxLength(500)
+                    .IsRequired();
+
+                entity.HasIndex(rt => rt.Token)
+                    .IsUnique();
+
+                entity.HasIndex(rt => rt.UserId);
+
+                entity.HasOne(rt => rt.User)
+                    .WithMany()
+                    .HasForeignKey(rt => rt.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
 
             base.OnModelCreating(builder);
         }

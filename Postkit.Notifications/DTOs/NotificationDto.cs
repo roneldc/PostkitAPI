@@ -1,4 +1,4 @@
-﻿using Postkit.Identity.DTOs;
+﻿using Postkit.Identity.DTOs.User;
 using Postkit.Notifications.Extensions;
 using Postkit.Shared.Enum;
 

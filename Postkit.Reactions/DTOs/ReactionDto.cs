@@ -1,4 +1,4 @@
-﻿using Postkit.Identity.DTOs;
+﻿using Postkit.Identity.DTOs.User;
 using Postkit.Reactions.Extensions;
 using Postkit.Shared.Enum;
 

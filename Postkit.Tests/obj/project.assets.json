@@ -3520,6 +3520,7 @@
           "Microsoft.AspNetCore.Identity.EntityFrameworkCore": "8.0.16",
           "Microsoft.EntityFrameworkCore": "8.0.16",
           "Microsoft.EntityFrameworkCore.SqlServer": "8.0.16",
+          "Microsoft.Extensions.Hosting.Abstractions": "8.0.1",
           "Postkit.Shared": "1.0.0",
           "Postkit.Tenant": "1.0.0"
         },
