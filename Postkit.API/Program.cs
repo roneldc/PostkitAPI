@@ -45,12 +45,21 @@ using Postkit.Tenant.Model;
 using Postkit.Tenant.Providers;
 using Postkit.Tenant.Repository;
 using Postkit.Tenant.Services;
+using Serilog;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Host.UseSerilog((context, services, configuration) =>
+{
+    configuration
+        .ReadFrom.Configuration(context.Configuration)
+        .ReadFrom.Services(services)
+        .Enrich.FromLogContext();
+});
+
 builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
@@ -243,6 +252,8 @@ if (enableSwagger)
 if (app.Environment.IsDevelopment())
 {
 }
+
+app.UseSerilogRequestLogging();
 
 app.UseExceptionHandler();
 
