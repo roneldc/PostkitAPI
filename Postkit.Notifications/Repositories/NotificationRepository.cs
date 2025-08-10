@@ -25,7 +25,7 @@ namespace Postkit.Notifications.Repositories
 
         public NotificationQueryBuilder CreateNotificationQuery()
         {
-            logger.LogInformation("Creating a new NotificationQueryBuilder instance for notifications.");
+            logger.LogInformation("Creating a new Query Builder instance for notifications.");
             return new NotificationQueryBuilder(context, http.HttpContext.GetTenantId());
         }
 

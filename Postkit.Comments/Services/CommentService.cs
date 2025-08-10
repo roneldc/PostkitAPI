@@ -1,8 +1,12 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Mailjet.Client.Resources;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Logging;
 using Postkit.Comments.DTOs;
 using Postkit.Comments.Interfaces;
 using Postkit.Comments.Mappers;
+using Postkit.Notifications.Hubs;
 using Postkit.Notifications.Interfaces;
+using Postkit.Notifications.Mappers;
 using Postkit.Shared.Exceptions;
 using Postkit.Shared.Interfaces.Auth;
 using Postkit.Shared.Interfaces.Posts;
@@ -18,18 +22,24 @@ namespace Postkit.Comments.Services
         private readonly ICurrentUserService currentUserService;
         private readonly IPostRepository postRepository;
         private readonly INotificationService notificationService;
+        private readonly INotificationRepository notificationRepository;
+        private readonly IHubContext<NotificationHub> hubContext;
 
         public CommentService(ICommentRepository commentRepository,
             ILogger<CommentService> logger,
             ICurrentUserService currentUserService,
             IPostRepository postRepository,
-            INotificationService notificationService)
+            INotificationService notificationService,
+            INotificationRepository notificationRepository,
+            IHubContext<NotificationHub> hubContext)
         {
             this.commentRepository = commentRepository;
             this.logger = logger;
             this.currentUserService = currentUserService;
             this.postRepository = postRepository;
             this.notificationService = notificationService;
+            this.notificationRepository = notificationRepository;
+            this.hubContext = hubContext;
         }
         public async Task<PagedResponse<CommentDto>> GetCommentsByPostAsync(Guid postId, int page, int pageSize)
         {
@@ -96,7 +106,13 @@ namespace Postkit.Comments.Services
 
                 if (post != null)
                 {
-                    await notificationService.CreateCommentNotificationAsync(postId, post.UserId, userId);
+                    var notificationDto = await notificationService.CreateCommentNotificationAsync(postId, post.UserId, userId);
+                    
+                    if(notificationDto != null)
+                    {
+                        logger.LogInformation("Sending SignalR notification for new comment on post with ID: {PostId}", postId);
+                        await hubContext.Clients.User(post.UserId).SendAsync("ReceiveNotification", notificationDto);
+                    }
                 }
             }
 

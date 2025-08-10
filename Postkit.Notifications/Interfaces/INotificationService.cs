@@ -11,7 +11,7 @@ namespace Postkit.Notifications.Interfaces
         Task<bool> MarkAsReadAsync(string notificationId, string userId);
         Task<bool> MarkAllAsReadAsync(string userId);
         Task<bool> DeleteNotificationAsync(string notificationId, string userId);
-        Task CreatePostReactedNotificationAsync(Guid postId, string postAuthorId, string userReacted);
-        Task CreateCommentNotificationAsync(Guid postId, string postAuthorId, string commentedByUserId);
+        Task<NotificationDto> CreatePostReactedNotificationAsync(Guid postId, string postAuthorId, string userReacted);
+        Task<NotificationDto> CreateCommentNotificationAsync(Guid postId, string postAuthorId, string commentedByUserId);
     }
 }

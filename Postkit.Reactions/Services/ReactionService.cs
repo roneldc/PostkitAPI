@@ -1,5 +1,8 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Logging;
+using Postkit.Notifications.Hubs;
 using Postkit.Notifications.Interfaces;
+using Postkit.Notifications.Mappers;
 using Postkit.Reactions.DTOs;
 using Postkit.Reactions.Interfaces;
 using Postkit.Reactions.Mappers;
@@ -17,18 +20,24 @@ namespace Postkit.Reactions.Services
         private readonly ICurrentUserService currentUserService;
         private readonly INotificationService notificationService;
         private readonly IPostRepository postRepository;
+        private readonly INotificationRepository notificationRepository;
+        private readonly IHubContext<NotificationHub> hubContext;
 
         public ReactionService(IReactionRepository reactionRepository,
             ILogger<ReactionService> logger,
             ICurrentUserService currentUserService,
             INotificationService notificationService,
-            IPostRepository postRepository)
+            IPostRepository postRepository,
+            INotificationRepository notificationRepository,
+            IHubContext<NotificationHub> hubContext)
         {
             this.reactionRepository = reactionRepository;
             this.logger = logger;
             this.currentUserService = currentUserService;
             this.notificationService = notificationService;
             this.postRepository = postRepository;
+            this.notificationRepository = notificationRepository;
+            this.hubContext = hubContext;
         }
 
         public async Task<PagedResponse<ReactionDto>> GetReactionsByPostAsync(Guid postId, int page, int pageSize)
@@ -147,8 +156,13 @@ namespace Postkit.Reactions.Services
 
                 if (post != null)
                 {
-                    logger.LogInformation("Creating notification for post {PostId} by user {UserId} with reaction type {ReactionType}", postId, userId, dto.Type);
-                    await notificationService.CreatePostReactedNotificationAsync(postId, post.UserId, userId);
+                    var notificationDto = await notificationService.CreatePostReactedNotificationAsync(postId, post.UserId, userId);
+
+                    if(notificationDto != null)
+                    {
+                        logger.LogInformation("Sending SignalR notification for new reaction on post with ID: {PostId}", postId);
+                        await hubContext.Clients.User(post.UserId).SendAsync("ReceiveNotification", notificationDto);
+                    }
                 }
             }
 

@@ -23,13 +23,13 @@ namespace Postkit.Comments.Repository
 
         public CommentQueryBuilder CreateCommentQuery()
         {
-            logger.LogInformation("Creating a new CreateQueryBuilder instance for comments.");
+            logger.LogInformation("Creating a new Query Builder instance for comments.");
             return new CommentQueryBuilder(context, http);
         }
 
         public async Task<Comment> CreateAsync(Comment comment)
         {
-            logger.LogInformation("Creating a new comment with ID: {CommentId} in the database", comment.Id);
+            logger.LogInformation("Creating a new comment in the database");
             context.Comments.Add(comment);
             await context.SaveChangesAsync();
             return comment;

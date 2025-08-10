@@ -162,9 +162,9 @@ namespace Postkit.Notifications.Services
             return true;
         }
 
-        public async Task CreatePostReactedNotificationAsync(Guid postId, string postAuthorId, string reactedByUserId)
+        public async Task<NotificationDto> CreatePostReactedNotificationAsync(Guid postId, string postAuthorId, string reactedByUserId)
         {
-            if (postAuthorId == reactedByUserId) return;
+            if (postAuthorId == reactedByUserId) return null!;
 
             var dto = new CreateNotificationDto
             {
@@ -177,12 +177,13 @@ namespace Postkit.Notifications.Services
                 ActorUserId = reactedByUserId
             };
 
-            await CreateNotificationAsync(dto);
+            var notificationDto = await CreateNotificationAsync(dto);
+            return notificationDto;
         }
 
-        public async Task CreateCommentNotificationAsync(Guid postId, string postAuthorId, string commentedByUserId)
+        public async Task<NotificationDto> CreateCommentNotificationAsync(Guid postId, string postAuthorId, string commentedByUserId)
         {
-            if (postAuthorId == commentedByUserId) return;
+            if (postAuthorId == commentedByUserId) return null!;
 
             var dto = new CreateNotificationDto
             {
@@ -195,7 +196,8 @@ namespace Postkit.Notifications.Services
                 ActorUserId = commentedByUserId
             };
 
-            await CreateNotificationAsync(dto);
+            var notificationDto = await CreateNotificationAsync(dto);
+            return notificationDto;
         }
 
     }
