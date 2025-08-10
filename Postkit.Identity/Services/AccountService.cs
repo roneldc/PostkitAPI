@@ -10,14 +10,13 @@ using Microsoft.AspNetCore.Http;
 using Postkit.Tenant.Common;
 using Postkit.Shared.Exceptions;
 using Postkit.Tenant.Interfaces;
-using System.ComponentModel.DataAnnotations;
 using ValidationException = Postkit.Shared.Exceptions.ValidationException;
 using Postkit.Tenant.Model;
 using Microsoft.Extensions.Options;
 using Postkit.Shared.Enum;
 using Postkit.Shared.Interfaces.MailJet;
 using Postkit.Shared.Interfaces.Auth;
-using Postkit.Identity.DTOs;
+using Postkit.Identity.DTOs.Account;
 
 namespace Postkit.Identity.Services
 {
@@ -126,22 +125,24 @@ namespace Postkit.Identity.Services
             if(!user.EmailConfirmed && !roles.Contains(UserRole.SuperAdmin.ToString()))
             {
                 logger.LogWarning("Login failed: email not confirmed for {Login}", dto.Email);
-                throw new ValidationException("Email not confirmed. Please check your email for confirmation link.");
+                throw new UnauthorizedException("Email not confirmed. Please check your email for confirmation link.");
             }
 
-            var token = jwtService.GenerateToken(user, roles, out DateTime expiresAt);
-
             logger.LogInformation("User {Login} logged in successfully", dto.Email);
+            var tokenResponse = await jwtService.GenerateTokensAsync(user);
 
             return new AuthDto
             {
-                Token = token,
-                ExpiresAt = expiresAt,
+                AccessToken = tokenResponse.AccessToken,
+                RefreshToken = tokenResponse.RefreshToken,
+                AccessTokenExpiry = tokenResponse.AccessTokenExpiry,
+                RefreshTokenExpiry = tokenResponse.RefreshTokenExpiry,
                 User = new AuthUserDto
                 {
                     Id = user.Id,
                     Email = user.Email!,
                     EmailConfirmed = user.EmailConfirmed,
+                    TenantId = user.TenantId,
                     Roles = roles.ToList()
                 }
             };
@@ -169,82 +170,27 @@ namespace Postkit.Identity.Services
             return true;
         }
 
-        public async Task<AuthUserDto?> GetCurrentUserAsync()
+        public async Task<AuthDto?> RefreshTokenAsync(RefreshTokenDto dto)
         {
-            logger.LogInformation("Getting current user profile");
+            logger.LogInformation("User {UserId} attempting to refresh tokens", currentUserService.UserId);
+            var refreshToken = await jwtService.RefreshTokensAsync(dto.RefreshToken);
+            var roles = await userManager.GetRolesAsync(refreshToken.User);
 
-            var userId = currentUserService.UserId;
-            if(userId == null)
+            return refreshToken != null ? new AuthDto
             {
-                logger.LogWarning("Current user ID is null.");
-                throw new UnauthorizedException();
-            }
-
-            var user = await userManager.Users.SingleOrDefaultAsync(u => u.Id == userId);
-            if (user == null)
-            {
-                logger.LogWarning("User with ID: {UserId} not found.", userId);
-                throw new NotFoundException($"User with ID {userId} not found.");
-            }
-
-            logger.LogInformation("Getting current user role");
-            var roles = await userManager.GetRolesAsync(user);
-
-            return new AuthUserDto
-            {
-                Id = user.Id,
-                Email = user.Email!,
-                Roles = roles.ToList()
-            };
-        }
-
-        public async Task<PagedResponse<AuthUserDto>> GetUsersAsync(UserQuery query)
-        {
-            logger.LogInformation("Getting users with filters and pagination: {@Query}", query);
-            var usersQuery = userManager.Users.AsQueryable();
-            usersQuery = query.ApplyFilters(usersQuery);
-            var totalCount = await usersQuery.CountAsync();
-            var users = await usersQuery.ToListAsync();
-            var userDtos = users.Select(u => new AuthUserDto
-            {
-                Id = u.Id,
-                Email = u.Email!,
-                Roles = userManager.GetRolesAsync(u).Result.ToList()
-            }).ToList();
-
-            logger.LogInformation("Retrieved {Count} users", userDtos.Count);
-
-            return new PagedResponse<AuthUserDto>
-            {
-                Items = userDtos,
-                TotalCount = totalCount,
-                Page = query.Page,
-                PageSize = query.PageSize,
-                TotalPages = (int)Math.Ceiling((double)totalCount / query.PageSize)
-            };
-        }
-
-        public async Task<bool> ChangePasswordAsync(ChangePasswordDto dto)
-        {
-            logger.LogInformation("User {UserId} attempting to change password", currentUserService.UserId);
-
-            var userId = currentUserService.UserId;
-            if (userId == null)
-            {
-                logger.LogWarning("Current user ID is null.");
-                throw new UnauthorizedException();
-            }
-
-            var user = await userManager.Users.SingleOrDefaultAsync(u => u.Id == userId);
-            if (user == null)
-            {
-                logger.LogWarning("User with ID: {UserId} not found.", userId);
-                throw new NotFoundException($"User with ID {userId} not found.");
-            }
-
-            var result = await userManager.ChangePasswordAsync(user, dto.CurrentPassword, dto.NewPassword);
-            logger.LogInformation("Password change result for user {UserId}: {Succeeded}", userId, result.Succeeded);
-            return result.Succeeded;
+                AccessToken = refreshToken.AccessToken,
+                RefreshToken = refreshToken.RefreshToken,
+                AccessTokenExpiry = refreshToken.AccessTokenExpiry,
+                RefreshTokenExpiry = refreshToken.RefreshTokenExpiry,
+                User = new AuthUserDto
+                {
+                    Id = refreshToken.User.Id,
+                    Email = refreshToken.User.Email!,
+                    EmailConfirmed = refreshToken.User.EmailConfirmed,
+                    TenantId = refreshToken.User.TenantId,
+                    Roles = roles.ToList()
+                }
+            } : null;
         }
 
         public async Task<bool> AssignRoleAsync(AssignRoleDto dto)

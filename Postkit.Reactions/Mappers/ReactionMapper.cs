@@ -1,7 +1,6 @@
 ﻿using Postkit.Reactions.DTOs;
 using Postkit.Identity.Mappers;
 using Postkit.Shared.Models;
-using Postkit.Identity.DTOs;
 
 namespace Postkit.Reactions.Mappers
 {
@@ -16,7 +15,7 @@ namespace Postkit.Reactions.Mappers
                 Id = reaction.Id,
                 Type = reaction.Type,
                 CreatedAt = reaction.CreatedAt,
-                User = reaction.User?.ToDto() ?? new UserDto(),
+                User = reaction.User!.ToDto(),
                 PostId = reaction.PostId
             };
         }

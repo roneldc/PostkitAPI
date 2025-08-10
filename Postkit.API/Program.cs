@@ -1,4 +1,4 @@
-using Asp.Versioning;
+﻿using Asp.Versioning;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -13,7 +13,9 @@ using Postkit.Comments.Queries;
 using Postkit.Comments.Repository;
 using Postkit.Comments.Services;
 using Postkit.Identity.Interfaces;
+using Postkit.Identity.Repositories;
 using Postkit.Identity.Services;
+using Postkit.Infrastructure.BackgroundServices;
 using Postkit.Infrastructure.CurrentUser;
 using Postkit.Infrastructure.Data;
 using Postkit.Infrastructure.Email;
@@ -130,7 +132,12 @@ builder.Services.AddScoped<ICommentQueryBuilder, CommentQueryBuilder>();
 builder.Services.AddScoped<IReactionQueryBuilder, ReactionQueryBuilder>();
 builder.Services.AddScoped<IPostQueryBuilder, PostQueryBuilder>();
 builder.Services.AddScoped<ICloudinaryUploader, CloudinaryService>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddTransient<IMailService, MailjetMailService>();
+
+builder.Services.AddHostedService<TokenCleanupService>();
+builder.Services.AddHostedService<SoftDeleteCleanupService>();
 
 builder.Services.AddAuthentication(options =>
 {
@@ -139,6 +146,7 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer(options =>
 {
+    var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
     options.RequireHttpsMetadata = false;
     options.SaveToken = true;
     options.TokenValidationParameters = new TokenValidationParameters
@@ -147,10 +155,10 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-        ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
+        ValidIssuer = jwtSettings!.Issuer,
+        ValidAudience = jwtSettings.Audience,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Secret)),
+        ClockSkew = TimeSpan.Zero
     };
     options.Events = new JwtBearerEvents
     {
@@ -204,7 +212,7 @@ builder.Services.Configure<CloudinarySettings>(
     builder.Configuration.GetSection("Cloudinary"));
 
 builder.Services.Configure<JwtSettings>(
-    builder.Configuration.GetSection("JWT"));
+    builder.Configuration.GetSection("JwtSettings"));
 
 builder.Services.Configure<ApplicationUrlSettings>(
     builder.Configuration.GetSection("ApplicationUrl"));

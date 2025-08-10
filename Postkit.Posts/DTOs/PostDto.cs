@@ -1,5 +1,5 @@
 ﻿using Postkit.Comments.DTOs;
-using Postkit.Identity.DTOs;
+using Postkit.Identity.DTOs.User;
 using Postkit.Shared.Enum;
 
 namespace Postkit.Posts.DTOs

@@ -1,9 +1,10 @@
 ﻿using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Postkit.Identity.DTOs;
+using Postkit.Identity.DTOs.Account;
 using Postkit.Identity.Interfaces;
-using Postkit.Identity.Queries;
+using Postkit.Shared.Abstractions;
+using Postkit.Shared.Interfaces.Auth;
 using Postkit.Shared.Responses;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -13,99 +14,24 @@ namespace Postkit.API.Controllers
     [Route("api/v{version:apiVersion}/accounts")]
     [ApiVersion("1.0")]
     [ApiExplorerSettings(GroupName = "v1")]
-    [SwaggerTag("Manages user accounts: profile, password changes, user listing, and role assignments.")]
+    [SwaggerTag("Manages user accounts: login, registration and role assignments.")]
     public class AccountController : ControllerBase
     {
         private readonly IAccountService accountService;
         private readonly ILogger<AccountController> logger;
+        private readonly IJwtService jwtService;
+        private readonly ICurrentUserService currentUserService;
 
-        public AccountController(IAccountService accountService, ILogger<AccountController> logger)
+        public AccountController(IAccountService accountService, 
+            ILogger<AccountController> logger,
+            IJwtService jwtService,
+            ICurrentUserService currentUserService)
         {
             this.accountService = accountService;
             this.logger = logger;
+            this.jwtService = jwtService;
+            this.currentUserService = currentUserService;
         }
-
-        /// <summary>
-        /// Get current logged-in user profile.
-        /// </summary>
-        /// <remarks>Returns the profile of the currently authenticated user.</remarks>
-        /// <response code="200">Returns the user profile</response>
-        /// <response code="401">If the user is not authenticated</response>
-        [HttpGet("me")]
-        [Authorize]
-        [SwaggerOperation(Summary = "Get current user", Description = "Returns the profile of the currently authenticated user.")]
-        [SwaggerResponse(200, "User profile returned successfully", typeof(ApiResponse<AuthUserDto>))]
-        [SwaggerResponse(401, "Unauthorized")]
-        [SwaggerResponse(404, "Not Found")]
-        public async Task<IActionResult> Me()
-        {
-            logger.LogInformation("GET api/accounts/me endpoint called");
-           
-            var user = await accountService.GetCurrentUserAsync();
-            return Ok(ApiResponse<AuthUserDto>.SuccessResponse("Current user retrieved successfully.", user));
-        }
-
-        /// <summary>
-        /// Get all users (Admin only).
-        /// </summary>
-        /// <remarks>Only users with the Admin role can access this endpoint.</remarks>
-        /// <response code="200">Returns the list of users</response>
-        /// <response code="403">If the user is not an admin</response>
-        [HttpGet("users")]
-        [Authorize]
-        [SwaggerOperation(Summary = "Get all users", Description = "Returns a list of all users. Requires Admin role.")]
-        [SwaggerResponse(200, "List of users returned successfully", typeof(ApiResponse<PagedResponse<AuthUserDto>>))]
-        [SwaggerResponse(403, "Forbidden - Admins only")]
-        public async Task<IActionResult> GetUsers([FromQuery] UserQuery query)
-        {
-            logger.LogInformation("GET api/accounts/users endpoint called with query: {Query}", query);
-            
-            var users = await accountService.GetUsersAsync(query);
-            return Ok(ApiResponse<PagedResponse<AuthUserDto>>.SuccessResponse("Users retrieved successfully.", users));
-        }
-
-        /// <summary>
-        /// Change the password of the current user.
-        /// </summary>
-        /// <remarks>Authenticated users can change their password.</remarks>
-        /// <response code="204">Password changed successfully</response>
-        /// <response code="400">Invalid input or old password incorrect</response>
-        /// <response code="401">If the user is not authenticated</response>
-        [HttpPost("change-password")]
-        [Authorize]
-        [SwaggerOperation(Summary = "Change password", Description = "Allows the authenticated user to change their password.")]
-        [SwaggerResponse(204, "Password changed successfully")]
-        [SwaggerResponse(400, "Invalid request or password mismatch")]
-        [SwaggerResponse(401, "Unauthorized")]
-        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto dto)
-        {
-            logger.LogInformation("POST api/accounts/change-password endpoint called");
-
-            await accountService.ChangePasswordAsync(dto);
-            return NoContent();
-        }
-
-        /// <summary>
-        /// Assign a role to a user (Admin only).
-        /// </summary>
-        /// <remarks>Only Admins can assign roles to users.</remarks>
-        /// <response code="200">Role assigned successfully</response>
-        /// <response code="400">Invalid role or user ID</response>
-        /// <response code="403">If the user is not an admin</response>
-        [HttpPost("assign-role")]
-        [Authorize]
-        [SwaggerOperation(Summary = "Assign role to user", Description = "Allows Admin to assign a role to a user.")]
-        [SwaggerResponse(200, "Role assigned successfully")]
-        [SwaggerResponse(400, "Invalid request")]
-        [SwaggerResponse(403, "Forbidden - Admins only")]
-        public async Task<IActionResult> AssignRole([FromBody] AssignRoleDto dto)
-        {
-            logger.LogInformation("POST api/accounts/assign-role endpoint called with data: {Dto}", dto);
-            
-            await accountService.AssignRoleAsync(dto);
-            return NoContent();
-        }
-
         /// <summary>
         /// Authenticates a user and returns a JWT token.
         /// </summary>
@@ -161,6 +87,67 @@ namespace Postkit.API.Controllers
             return confirmed ? 
                 ShowSuccessPage(tenantName) :
                 ShowErrorPage(tenantName);
+        }
+
+        [HttpPost("refresh")]
+        [AllowAnonymous]
+        [SwaggerOperation(Summary = "Refresh JWT token", Description = "Refreshes the JWT token using a valid refresh token.")]
+        [SwaggerResponse(200, "Token refreshed successfully", typeof(ApiResponse<AuthDto>))]
+        [SwaggerResponse(401, "Unauthorized - Invalid or expired token")]
+        public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenDto request)
+        {
+            logger.LogInformation("accounts/refresh endpoint hit with refresh token: {RefreshToken}", request.RefreshToken);
+
+            var tokenResponse = await accountService.RefreshTokenAsync(request);
+            return Ok(ApiResponse<AuthDto>.SuccessResponse("Token refreshed successfully.", tokenResponse));
+        }
+
+        [HttpPost("logout")]
+        [Authorize]
+        [SwaggerOperation(Summary = "Logout", Description = "Logs out the user by revoking the refresh token.")]
+        [SwaggerResponse(200, "Logout successful", typeof(ApiResponse<string>))]
+        [SwaggerResponse(400, "Invalid refresh token")]
+        [SwaggerResponse(401, "Unauthorized - User not authenticated")]
+        public async Task<IActionResult> Logout([FromBody] RefreshTokenDto request)
+        {
+            logger.LogInformation("accounts/logout endpoint hit with refresh token: {RefreshToken}", request);
+            var userId = currentUserService.UserId!;
+            await jwtService.RevokeTokenAsync(request.RefreshToken, userId);
+            return Ok(ApiResponse<string>.SuccessResponse("Logout successfully."));
+        }
+
+        [HttpPost("revoke-all")]
+        [Authorize]
+        [SwaggerOperation(Summary = "Revoke all tokens", Description = "Revokes all active refresh tokens for the current user.")]
+        [SwaggerResponse(200, "All sessions revoked successfully", typeof(ApiResponse<string>))]
+        [SwaggerResponse(401, "Unauthorized - User not authenticated")]
+        public async Task<IActionResult> RevokeAllTokens()
+        {
+            logger.LogInformation("accounts/revoke-all endpoint hit to revoke all tokens for user: {UserId}", currentUserService.UserId);
+            var userId = currentUserService.UserId!;
+            await jwtService.RevokeAllUserTokensAsync(userId);
+            return Ok(ApiResponse<string>.SuccessResponse("All sessions revoked successfully"));
+        }
+
+        /// <summary>
+        /// Assign a role to a user (Admin only).
+        /// </summary>
+        /// <remarks>Only Admins can assign roles to users.</remarks>
+        /// <response code="200">Role assigned successfully</response>
+        /// <response code="400">Invalid role or user ID</response>
+        /// <response code="403">If the user is not an admin</response>
+        [HttpPost("assign-role")]
+        [Authorize]
+        [SwaggerOperation(Summary = "Assign role to user", Description = "Allows Admin to assign a role to a user.")]
+        [SwaggerResponse(200, "Role assigned successfully")]
+        [SwaggerResponse(400, "Invalid request")]
+        [SwaggerResponse(403, "Forbidden - Admins only")]
+        public async Task<IActionResult> AssignRole([FromBody] AssignRoleDto dto)
+        {
+            logger.LogInformation("POST api/accounts/assign-role endpoint called with data: {Dto}", dto);
+
+            await accountService.AssignRoleAsync(dto);
+            return NoContent();
         }
 
         private IActionResult ShowSuccessPage(string tenant)

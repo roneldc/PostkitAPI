@@ -57,6 +57,14 @@ namespace Postkit.Shared.Helpers
 
             return new string(chars.OrderBy(_ => random.Next()).ToArray());
         }
+
+        public static string GenerateRefreshToken()
+        {
+            var randomBytes = new byte[64];
+            using var rng = RandomNumberGenerator.Create();
+            rng.GetBytes(randomBytes);
+            return Convert.ToBase64String(randomBytes);
+        }
     }
 
 }
