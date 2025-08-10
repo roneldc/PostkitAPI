@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Postkit.Shared.Enum;
+using Postkit.Shared.Exceptions;
 using Postkit.Shared.Interfaces.Auth;
 using System.Security.Claims;
 
@@ -39,7 +40,7 @@ namespace Postkit.Infrastructure.CurrentUser
                     if (headerTenantId != userTenantId)
                     {
                         logger.LogWarning("Tenant ID mismatch. User tenant: {userTenant}, Header tenant {headerTenant}", userTenantId, headerTenantId);
-                        return userTenantId;
+                        throw new ForbiddenException("Tenant ID mismatch. Please ensure you are accessing the correct tenant.");
                     }
                 }
 

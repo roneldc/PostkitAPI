@@ -19,7 +19,7 @@ namespace Postkit.Infrastructure.BackgroundServices
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            logger.LogInformation("Token cleanup service started at {Time}", DateTimeOffset.Now);
+            logger.LogInformation("TokenCleanup started at {Time}", DateTimeOffset.Now);
             while (!stoppingToken.IsCancellationRequested)
             {
                 try
@@ -38,7 +38,7 @@ namespace Postkit.Infrastructure.BackgroundServices
                         await context.SaveChangesAsync(stoppingToken);
                     }
 
-                    logger.LogInformation("Cleanup completed: {Count} expired refresh tokens deleted", expiredTokens.Count);
+                    logger.LogInformation("TokenCleanup completed successfully at {Time}. ExpiredTokensDeleted: {count}", DateTimeOffset.Now, expiredTokens.Count);
                 }
                 catch (Exception ex)
                 {

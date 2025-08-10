@@ -44,7 +44,7 @@ namespace Poskit.Posts.Repository
         }
         public async Task<Post> CreateAsync(Post post)
         {
-            logger.LogInformation("Creating a new post with ID: {PostId} in the database.", post.Id);
+            logger.LogInformation("Creating a new post in the database. Title: {Title}", post.Title);
             context.Posts.Add(post);
             await context.SaveChangesAsync();
             return post;

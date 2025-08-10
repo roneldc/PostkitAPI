@@ -21,7 +21,7 @@ namespace Postkit.Infrastructure.BackgroundServices
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            logger.LogInformation("Soft delete cleanup service started at {Time}", DateTimeOffset.Now);
+            logger.LogInformation("SoftDeleteCleanup started at {Time}", DateTimeOffset.Now);
             try
             {
                 await CleanupAsync(stoppingToken);
@@ -41,8 +41,6 @@ namespace Postkit.Infrastructure.BackgroundServices
             using var scope = scopeFactory.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<PostkitDbContext>();
 
-            logger.LogInformation("Starting cleanup for records deleted before {Cutoff}", cutoff);
-
             // Delete old soft-deleted posts
             var postsDeleted = await context.Posts
                 .IgnoreQueryFilters()
@@ -55,9 +53,15 @@ namespace Postkit.Infrastructure.BackgroundServices
                 .Where(c => c.IsDeleted && c.DeletedAt < cutoff)
                 .ExecuteDeleteAsync(stoppingToken);
 
+            // Delete old soft-deleted users
+            var usersDeleted = await context.Users
+                .IgnoreQueryFilters()
+                .Where(c => c.IsDeleted && c.DeletedAt < cutoff)
+                .ExecuteDeleteAsync(stoppingToken);
+
             logger.LogInformation(
-                "Cleanup completed: {PostsCount} posts, {CommentsCount} comments deleted.",
-                postsDeleted, commentsDeleted);
+                "SoftDeleteCleanup completed successfully at {time}. Posts Deleted: {PostsCount}, Comments Deleted: {CommentsCount}, Users Deleted: {UsersCount}.",
+                DateTimeOffset.Now, postsDeleted, commentsDeleted, usersDeleted);
         }
     }
 }
