@@ -9,11 +9,9 @@ namespace Postkit.Reactions.DTOs
         public Guid Id { get; set; } = default!;
         public Guid PostId { get; set; } = default!;
         public ReactionType Type { get; set; }
-        public DateTime CreatedAt { get; set; }
-
-        public UserDto User { get; set; } = default!;
-
         public string TypeName => Type.GetDisplayName();
         public string Emoji => Type.GetEmoji();
+        public DateTime CreatedAt { get; set; }
+        public UserDto User { get; set; } = default!;
     }
 }

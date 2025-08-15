@@ -188,7 +188,7 @@ namespace Postkit.Tenant.Services
                 throw new ValidationException($"Failed to create admin user {string.Join(", ", result.Errors.Select(e => e.Description))}");
 
             logger.LogInformation("Assigning TenantAdmin role to user {userName}", adminUser.UserName);
-            var role = UserRole.SuperAdmin.ToString();
+            var role = UserRole.TenantAdmin.ToString();
             if (!await roleManager.RoleExistsAsync(role))
             {
                 await roleManager.CreateAsync(new IdentityRole(role));
