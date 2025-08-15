@@ -12,6 +12,7 @@ COPY Postkit.Notifications/*.csproj Postkit.Notifications/
 COPY Postkit.Reactions/*.csproj Postkit.Reactions/
 COPY Postkit.Infrastructure/*.csproj Postkit.Infrastructure/
 COPY Postkit.Shared/*.csproj Postkit.Shared/
+COPY Postkit.Tenant/*.csproj Postkit.Tenant/
 COPY Postkit.Tests/*.csproj Postkit.Tests/
 
 # Restore dependencies
