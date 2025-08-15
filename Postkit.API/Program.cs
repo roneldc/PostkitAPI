@@ -21,6 +21,7 @@ using Postkit.Infrastructure.Data;
 using Postkit.Infrastructure.Email;
 using Postkit.Infrastructure.Jwt;
 using Postkit.Infrastructure.Media;
+using Postkit.Infrastructure.Swagger;
 using Postkit.Notifications.Hubs;
 using Postkit.Notifications.Interfaces;
 using Postkit.Notifications.Repositories;
@@ -52,6 +53,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
 builder.Host.UseSerilog((context, services, configuration) =>
 {
     configuration
@@ -94,6 +96,8 @@ builder.Services.AddSwaggerGen(options =>
             Array.Empty<string>()
         }
     };
+
+    options.OperationFilter<AddRequiredHeadersFilter>();
 
     options.AddSecurityRequirement(securityRequirement);
     options.EnableAnnotations();
@@ -190,8 +194,6 @@ builder.Services.AddAuthorization(options =>
         policy.RequireRole(UserRole.SuperAdmin.ToString(), UserRole.TenantAdmin.ToString()));
 });
 
-builder.Services.AddLogging();
-
 var allowedOrigins = builder.Configuration
     .GetSection("Cors:AllowedOrigins")
     .Get<string[]>();
@@ -226,16 +228,9 @@ builder.Services.Configure<JwtSettings>(
 builder.Services.Configure<ApplicationUrlSettings>(
     builder.Configuration.GetSection("ApplicationUrl"));
 
-builder.Logging.ClearProviders();
-builder.Logging.AddConsole();
-builder.Logging.AddDebug();
-
-if(builder.Environment.IsProduction())
-{
-    builder.Logging.AddJsonConsole();
-}
-
 var app = builder.Build();
+
+app.UseRouting();
 
 var enableSwagger = builder.Configuration.GetValue<bool>("EnableSwagger");
 if (enableSwagger)
@@ -248,18 +243,9 @@ if (enableSwagger)
     });
 }
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-}
-
 app.UseSerilogRequestLogging();
-
 app.UseExceptionHandler();
-
 app.UseCors("ConfiguredCors");
-
-app.UseRouting();
 
 // admin: only global admin key can call
 app.UseWhen(ctx => ctx.Request.Path.Equals("/api/v1/tenants", StringComparison.OrdinalIgnoreCase),
