@@ -27,7 +27,7 @@ namespace Postkit.Tenant.Repository
         public async Task<TenantInfo?> GetByIdASync(string id)
         {
             logger.LogInformation("Fetching tenant with ID: {ID} from the database.", id);
-            return await context.TenantInfo.SingleOrDefaultAsync(t => t.TenantId == id);
+            return await context.TenantInfo.FirstOrDefaultAsync(t => t.TenantId == id);
         }
 
         public async Task<TenantInfo> AddAsync(TenantInfo tenantInfo)
@@ -55,20 +55,20 @@ namespace Postkit.Tenant.Repository
         {
             logger.LogInformation("Getting tenant by name: {TenantName} in the database", tenantName);
             return await context.TenantInfo.AsNoTracking()
-                .SingleOrDefaultAsync(t => t.TenantName == tenantName);
+                .FirstOrDefaultAsync(t => t.TenantName == tenantName);
         }
         public async Task<TenantInfo?> GetByEmailAsync(string tenantEmail)
         {
             logger.LogInformation("Getting tenant by email: {TenantEmail} in the database", tenantEmail);
             return await context.TenantInfo.AsNoTracking()
-                .SingleOrDefaultAsync(t => t.TenantEmail == tenantEmail);
+                .FirstOrDefaultAsync(t => t.TenantEmail == tenantEmail);
         }
 
         public async Task<TenantInfo?> GetByNameAndTokenAndConfirmationStatus(string tenantId, string token, bool isConfirmed)
         {
             logger.LogInformation("Getting credentials for tenant id {id} in the database.", tenantId);
             return await context.TenantInfo
-                .SingleOrDefaultAsync(t => t.TenantId == tenantId 
+                .FirstOrDefaultAsync(t => t.TenantId == tenantId 
                 && t.ConfirmationToken == token
                 && t.IsConfirmed == isConfirmed);
         }
