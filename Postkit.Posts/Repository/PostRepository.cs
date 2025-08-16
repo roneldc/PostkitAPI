@@ -69,7 +69,7 @@ namespace Poskit.Posts.Repository
         {
             logger.LogInformation("Fetching comment counts for post IDs: {PostIds} from the database.", string.Join(", ", postIds));
             return await context.Comments
-                .Where(c => postIds.Contains(c.PostId))
+                .Where(c => postIds.Contains(c.PostId) && !c.IsDeleted)
                 .GroupBy(c => c.PostId)
                 .ToDictionaryAsync(g => g.Key, g => g.Count());
         }
