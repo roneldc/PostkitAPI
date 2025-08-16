@@ -73,7 +73,8 @@ namespace Postkit.Identity.Services
                 FirstName = dto.FirstName,
                 LastName = dto.LastName,
                 TenantId = tenantId,
-                EmailConfirmed = false
+                EmailConfirmed = false,
+                CreatedAt = DateTime.UtcNow
             };
 
             var result = await userManager.CreateAsync(user, dto.Password);

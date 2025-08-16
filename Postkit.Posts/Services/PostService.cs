@@ -68,7 +68,7 @@ namespace Poskit.Posts.Services
             var comments = await postRepository.CreateCommentQuery()
                 .ByPostId(postId)
                 .WithUser()
-                .OrderByNewest()
+                .OrderByOldest()
                 .Paginate(1, 10)
                 .AsNoTracking()
                 .ToListAsync();
